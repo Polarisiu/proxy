@@ -18,7 +18,7 @@ show_menu() {
 # 安装函数
 install_frp_panel() {
     echo -e "${GREEN}开始安装 FRP-Panel...${NC}"
-    bash <(curl -fsSL https://raw.githubusercontent.com/iu683/proxy/main/frppanel.sh)
+    bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/frppanel.sh)
     echo -e "${GREEN}安装完成，按回车返回菜单...${NC}"
     read
 }
