@@ -43,18 +43,18 @@ install_protocol() {
         01|1) bash <(curl -Ls https://raw.githubusercontent.com/eooce/sing-box/main/sing-box.sh) ;;
         02|2) bash <(curl -Ls https://github.com/eooce/xray-2go/raw/main/xray_2go.sh) ;;
         03|3) wget -P /root -N --no-check-certificate "https://raw.githubusercontent.com/mack-a/v2ray-agent/master/install.sh" && chmod 700 /root/install.sh && /root/install.sh ;;
-        04|4) bash <(curl -fsSL https://raw.githubusercontent.com/iu683/proxy/main/Hysteria2.sh) ;;
-        05|5) bash <(curl -fsSL https://raw.githubusercontent.com/iu683/proxy/main/tuic.sh) ;;
-        06|6) bash <(curl -fsSL https://raw.githubusercontent.com/iu683/proxy/main/Reality.sh) ;;
+        04|4) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/Hysteria2.sh) ;;
+        05|5) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/tuic.sh) ;;
+        06|6) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/Reality.sh) ;;
         07|7) wget -O snell.sh --no-check-certificate https://git.io/Snell.sh && chmod +x snell.sh && ./snell.sh ;;
-        08|8) bash <(curl -fsSL https://raw.githubusercontent.com/iu683/proxy/main/MTProto.sh) ;;
+        08|8) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/MTProto.sh) ;;
         09|9) bash <(curl -sL https://raw.githubusercontent.com/kirito201711/One-click-installation-of-anytls/main/install_anytls.sh) ;;
-        10) bash <(curl -sL https://raw.githubusercontent.com/iu683/proxy/main/3xui.sh) ;;
-        11) bash <(curl -fsSL https://raw.githubusercontent.com/iu683/proxy/main/dkmop.sh) ;;
-        12) bash <(curl -sL https://raw.githubusercontent.com/iu683/proxy/main/gost.sh) ;;
-        13) bash <(curl -sL https://raw.githubusercontent.com/iu683/proxy/main/Realm.sh) ;;
+        10) bash <(curl -sL https://raw.githubusercontent.com/Polarisiu/proxy/main/3xui.sh) ;;
+        11) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/dkmop.sh) ;;
+        12) bash <(curl -sL https://raw.githubusercontent.com/Polarisiu/proxy/main/gost.sh) ;;
+        13) bash <(curl -sL https://raw.githubusercontent.com/Polarisiu/proxy/main/Realm.sh) ;;
         14) curl -sS -O https://raw.githubusercontent.com/zyxinab/iptables-manager/main/iptables-manager.sh && chmod +x iptables-manager.sh && ./iptables-manager.sh ;;
-        15) bash <(curl -fsSL https://raw.githubusercontent.com/iu683/proxy/main/frpgl.sh) ;;
+        15) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/FRP.sh) ;;
         88|088)
             echo -e "${GREEN}正在更新脚本...${RESET}"
             if curl -fsSL "$SCRIPT_URL" -o "$SCRIPT_PATH"; then
