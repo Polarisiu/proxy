@@ -29,8 +29,8 @@ show_menu() {
     echo -e "${GREEN}[11] MTProxy-Alpines${RESET}"
     echo -e "${GREEN}[12] GOST管理${RESET}"
     echo -e "${GREEN}[13] Realm管理${RESET}"
-    echo -e "${GREEN}[14] FRP管理${RESET}"
-    echo -e "${GREEN}[15] Alpine转发${RESET}"
+    echo -e "${GREEN}[14] Alpine转发${RESET}"
+    echo -e "${GREEN}[15] FRP管理${RESET}"
     echo -e "${GREEN}----------------------------------------${RESET}"
     echo -e "${GREEN}[88] 更新脚本${RESET}"
     echo -e "${GREEN}[99] 卸载脚本${RESET}"
@@ -53,8 +53,8 @@ install_protocol() {
         11) bash <(curl -fsSL https://raw.githubusercontent.com/iu683/proxy/main/dkmop.sh) ;;
         12) bash <(curl -sL https://raw.githubusercontent.com/iu683/proxy/main/gost.sh) ;;
         13) bash <(curl -sL https://raw.githubusercontent.com/iu683/proxy/main/Realm.sh) ;;
-        14) bash <(curl -fsSL https://raw.githubusercontent.com/iu683/proxy/main/frpgl.sh) ;;
-        15) curl -sS -O https://raw.githubusercontent.com/zyxinab/iptables-manager/main/iptables-manager.sh && chmod +x iptables-manager.sh && ./iptables-manager.sh ;;
+        14) curl -sS -O https://raw.githubusercontent.com/zyxinab/iptables-manager/main/iptables-manager.sh && chmod +x iptables-manager.sh && ./iptables-manager.sh ;;
+        15) bash <(curl -fsSL https://raw.githubusercontent.com/iu683/proxy/main/frpgl.sh) ;;
         88|088)
             echo -e "${GREEN}正在更新脚本...${RESET}"
             if curl -fsSL "$SCRIPT_URL" -o "$SCRIPT_PATH"; then
