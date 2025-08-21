@@ -32,7 +32,7 @@ menu() {
                 ;;
             3)
                 echo -e "${GREEN}正在安装 Alpine 版本 3XUI...${RESET}"
-                bash <(curl -sL https://raw.githubusercontent.com/iu683/proxy/main/3xuiAlpine.sh)
+                bash <(curl -sL https://raw.githubusercontent.com/Polarisiu/proxy/main/3xuiAlpine.sh)
                 pause
                 ;;
             0)
