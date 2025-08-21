@@ -15,6 +15,7 @@ SCRIPT_URL="https://raw.githubusercontent.com/Polarisiu/proxy/main/proxy.sh"  # 
 show_menu() {
     clear
     echo -e "${GREEN}========= 代理协议一键安装菜单 =========${RESET}"
+    echo -e "${GREEN}当前时间: $(date)${RESET}"
     echo -e "${GREEN}[01] 老王 Sing-box 四合一${RESET}"
     echo -e "${GREEN}[02] 老王 Xray-2go 一键脚本${RESET}"
     echo -e "${GREEN}[03] mack-a 八合一脚本${RESET}"
@@ -35,7 +36,6 @@ show_menu() {
     echo -e "${GREEN}[99] 卸载脚本${RESET}"
     echo -e "${GREEN}[0] 退出脚本${RESET}"
     echo -e "${GREEN}========================================${RESET}"
-    echo -e "${GREEN}当前时间: $(date)${RESET}"
 }
 
 install_protocol() {
