@@ -34,7 +34,7 @@ show_menu() {
     echo -e "${GREEN}----------------------------------------${RESET}"
     echo -e "${GREEN}[88] 更新脚本${RESET}"
     echo -e "${GREEN}[99] 卸载脚本${RESET}"
-    echo -e "${GREEN}[0] 退出脚本${RESET}"
+    echo -e "${GREEN}[0]  退出脚本${RESET}"
     echo -e "${GREEN}========================================${RESET}"
 }
 
