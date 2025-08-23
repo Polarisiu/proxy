@@ -112,9 +112,9 @@ while true; do
             open_firewall_port $port
 
             if [ -f "/etc/alpine-release" ]; then
-                SERVER_PORT=$port bash -c "$(curl -fsSL https://raw.githubusercontent.com/iu683/star/main/hy2.sh)"
+                SERVER_PORT=$port bash -c "$(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/hy2.sh)"
             else
-                HY2_PORT=$port bash -c "$(curl -fsSL https://raw.githubusercontent.com/iu683/star/main/azHysteria2.sh)"
+                HY2_PORT=$port bash -c "$(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/azHysteria2.sh)"
             fi
 
             echo -e "${green}Hysteria2 安装完成！端口: $port${re}"
