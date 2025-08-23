@@ -66,8 +66,9 @@ while true; do
             PORT=$port bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/azreality.sh)
 
             echo -e "${green}Reality 安装完成！端口: $port${re}"
-            sleep 1
+            read -p "按回车返回菜单..."
             ;;
+
         2)
             clear
             echo -e "${green}正在检查 Reality 运行状态...${re}"
