@@ -20,7 +20,7 @@ menu_sui() {
         echo -e "${blue}Sui 面板管理${reset}"
         echo "--------------"
         echo -e "${green}1. 安装 Sui 面板${reset}"
-        echo -e "${red}  2. 卸载 Sui 面板${reset}"
+        echo -e "${red}2. 卸载 Sui 面板${reset}"
         echo "--------------"
         echo -e "${blue}0. 退出${reset}"
         echo "--------------"
