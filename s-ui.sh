@@ -33,12 +33,11 @@ menu_sui() {
                 bash <(curl -Ls https://raw.githubusercontent.com/Misaka-blog/s-ui/master/install.sh)
 
                 echo -e "\n${green}✅ 安装完成${reset}"
-                echo -e "${yellow}======== Sui 面板信息 ========${reset}"
+                echo -e "${yellow}======== Sui 默认面板信息 ========${reset}"
                 echo -e "${green}面板端口：2095${reset}"
                 echo -e "${green}面板路径：/app/${reset}"
                 echo -e "${green}订阅端口：2096${reset}"
                 echo -e "${green}订阅路径：/sub/${reset}"
-                echo -e "${green}用户/密码：admin / admin${reset}"
                 echo -e "${yellow}================================${reset}"
                 pause_and_return
                 ;;
