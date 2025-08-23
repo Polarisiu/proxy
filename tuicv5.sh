@@ -148,6 +148,7 @@ show_info() {
 
     echo -e "\n${green}V2rayN / NekoBox 链接:${reset}"
     echo -e "${green}tuic://$uuid:$password@$public_ip:$port?congestion_control=bbr&alpn=h3&sni=www.bing.com&udp_relay_mode=native&allow_insecure=1#$isp${reset}"
+    echo -e "${yellow}提示：如果节点无法连接，请确保客户端允许跳过证书验证设为 true${reset}"
     echo ""
 }
 
