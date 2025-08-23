@@ -22,7 +22,7 @@ show_menu() {
     echo -e "${GREEN}[04] Hysteria2${RESET}"
     echo -e "${GREEN}[05] Tuic${RESET}"
     echo -e "${GREEN}[06] Reality${RESET}"
-    echo -e "${GREEN}[07] 老王 Snell${RESET}"
+    echo -e "${GREEN}[07] Snell${RESET}"
     echo -e "${GREEN}[08] MTProto${RESET}"
     echo -e "${GREEN}[09] Anytls${RESET}"
     echo -e "${GREEN}[10] 3XUI管理${RESET}"
@@ -50,7 +50,7 @@ install_protocol() {
         02|2) bash <(curl -Ls https://github.com/eooce/xray-2go/raw/main/xray_2go.sh) ;;
         03|3) wget -P /root -N --no-check-certificate "https://raw.githubusercontent.com/mack-a/v2ray-agent/master/install.sh" && chmod 700 /root/install.sh && /root/install.sh ;;
         04|4) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/Hysteria2.sh) ;;
-        05|5) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/tuic.sh) ;;
+        05|5) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/tuicv5.sh);;
         06|6) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/Reality.sh) ;;
         07|7) wget -O snell.sh --no-check-certificate https://git.io/Snell.sh && chmod +x snell.sh && ./snell.sh ;;
         08|8) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/MTProto.sh) ;;
