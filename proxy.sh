@@ -64,7 +64,7 @@ install_protocol() {
         16) bash <(curl -L -s menu.jinqians.com) ;;
         17) wget -N --no-check-certificate https://raw.githubusercontent.com/flame1ce/hysteria2-install/main/hysteria2-install-main/hy2/hysteria.sh && bash hysteria.sh ;;
         18) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/s-ui.sh) ;;
-        19) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/H-UI.sh) ;;
+        19) bash <(curl -fsSL https://raw.githubusercontent.com/jonssonyan/h-ui/main/install.sh) ;;
         20) install wget && wget https://git.io/vpn -O openvpn-install.sh && bash openvpn-install.sh ;;
         88|088)
             echo -e "${GREEN}正在更新脚本...${RESET}"
