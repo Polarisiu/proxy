@@ -91,6 +91,7 @@ while true; do
             fi
             read -p "按回车返回菜单..."
             ;;
+
         3)
             clear
             install_jq
@@ -112,8 +113,9 @@ while true; do
                 systemctl restart xray.service
             fi
             echo -e "${green}Reality端口已更换成 $new_port，请手动更新客户端配置！${re}"
-            sleep 1
+            read -p "按回车返回菜单..."
             ;;
+
         4)
             clear
             if [ -f "/etc/alpine-release" ]; then
@@ -132,12 +134,14 @@ while true; do
                 systemctl daemon-reload
             fi
             echo -e "${green}Reality 已卸载${re}"
-            sleep 1
+            read -p "按回车返回菜单..."
             ;;
+
         0)
             echo -e "${green}已退出脚本${re}"
             exit 0
             ;;
+
         *)
             echo -e "${red}无效输入！${re}"
             sleep 1
