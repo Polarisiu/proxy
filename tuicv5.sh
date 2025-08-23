@@ -137,12 +137,13 @@ uninstall_tuic() {
     echo -e "${green}已卸载 Tuic${reset}"
 }
 
-# 显示节点信息（自动带端口）
+# 显示节点信息（自动带端口，修复 IPv6 解析）
 show_info() {
     public_ip=$(curl -s https://api.ipify.org)
     uuid=$(jq -r 'keys[0]' <<< $(jq -r '.users' "$CONFIG"))
     password=$(jq -r '.users[]' "$CONFIG")
-    port=$(jq -r '.server' "$CONFIG" | awk -F: '{print $3}' | tr -d ']')
+    # 修正 IPv6 格式端口提取
+    port=$(jq -r '.server' "$CONFIG" | sed -E 's/.*:([0-9]+)$/\1/')
     isp=$(curl -s https://speed.cloudflare.com/meta | awk -F\" '{print $26"-"$18}' | sed -e 's/ /_/g')
 
     echo -e "\n${green}V2rayN / NekoBox 链接:${reset}"
