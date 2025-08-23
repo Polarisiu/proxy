@@ -129,7 +129,6 @@ while true; do
             [[ -z $new_port ]] && new_port=$(random_port)
 
             new_port=$(check_udp_port $new_port)
-
             open_firewall_port $new_port
 
             if [ -f "/etc/alpine-release" ]; then
@@ -157,7 +156,7 @@ while true; do
                 systemctl daemon-reload
             fi
             echo -e "${green}Hysteria2 已彻底卸载${re}"
-            sleep 1
+            read -p "按回车返回菜单..."
             ;;
         0)
             echo -e "${green}已退出脚本${re}"
