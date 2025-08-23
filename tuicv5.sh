@@ -1,8 +1,7 @@
 #!/bin/bash
-# Tuic v5 管理脚本 - eooce 菜单版（安装支持自定义端口）
+# Tuic v5 管理脚本 - eooce 完整版（自定义端口+自动显示URL）
 
 green="\033[32m"
-red="\033[31m"
 yellow="\033[33m"
 reset="\033[0m"
 
@@ -61,12 +60,12 @@ install_tuic() {
     fi
     chmod +x tuic-server
 
-    # 证书
+    # 生成证书
     openssl req -x509 -nodes -newkey ec:<(openssl ecparam -name prime256v1) \
         -keyout server.key -out server.crt -subj "/CN=bing.com" -days 36500
 
     # 用户输入端口
-    echo -ne "${yellow}请输入端口 (10000-65000)，直接回车则随机: ${reset}"
+    echo -ne "${green}请输入端口 (10000-65000)，直接回车则随机: ${reset}"
     read port
     if [[ -z "$port" ]]; then
         port=$(shuf -i 10000-65000 -n 1)
@@ -114,6 +113,7 @@ EOF
     systemctl daemon-reload
     systemctl enable --now tuic
 
+    echo -e "${green}\n安装完成，节点信息如下:${reset}"
     show_info
 }
 
@@ -137,7 +137,7 @@ uninstall_tuic() {
     echo -e "${green}已卸载 Tuic${reset}"
 }
 
-# 显示节点信息
+# 显示节点信息（自动带端口）
 show_info() {
     public_ip=$(curl -s https://api.ipify.org)
     uuid=$(jq -r 'keys[0]' <<< $(jq -r '.users' "$CONFIG"))
@@ -145,7 +145,7 @@ show_info() {
     port=$(jq -r '.server' "$CONFIG" | awk -F: '{print $3}' | tr -d ']')
     isp=$(curl -s https://speed.cloudflare.com/meta | awk -F\" '{print $26"-"$18}' | sed -e 's/ /_/g')
 
-    echo -e "\n${yellow}V2rayN / NekoBox 链接:${reset}"
+    echo -e "\n${green}V2rayN / NekoBox 链接:${reset}"
     echo -e "${green}tuic://$uuid:$password@$public_ip:$port?congestion_control=bbr&alpn=h3&sni=www.bing.com&udp_relay_mode=native&allow_insecure=1#$isp${reset}"
     echo ""
 }
