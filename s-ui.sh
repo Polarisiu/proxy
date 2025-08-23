@@ -17,8 +17,9 @@ pause_and_return() {
 menu_sui() {
     while true; do
         clear
-        echo -e "${blue}Sui 面板管理${reset}"
-        echo "--------------"
+        echo -e "${blue}━━━━━━━━━━━━━━━━━━━━━━━━━━${reset}"
+        echo -e "         Sui 面板管理"
+        echo -e "${blue}━━━━━━━━━━━━━━━━━━━━━━━━━━${reset}"
         echo -e "${green}1. 安装 Sui 面板${reset}"
         echo -e "${red}2. 卸载 Sui 面板${reset}"
         echo "--------------"
@@ -30,7 +31,15 @@ menu_sui() {
             1)
                 echo -e "${yellow}正在安装 Sui 面板...${reset}"
                 bash <(curl -Ls https://raw.githubusercontent.com/Misaka-blog/s-ui/master/install.sh)
-                echo -e "${green}✅ 安装完成${reset}"
+
+                echo -e "\n${green}✅ 安装完成${reset}"
+                echo -e "${yellow}======== Sui 面板信息 ========${reset}"
+                echo -e "${green}面板端口：2095${reset}"
+                echo -e "${green}面板路径：/app/${reset}"
+                echo -e "${green}订阅端口：2096${reset}"
+                echo -e "${green}订阅路径：/sub/${reset}"
+                echo -e "${green}用户/密码：admin / admin${reset}"
+                echo -e "${yellow}================================${reset}"
                 pause_and_return
                 ;;
             2)
@@ -40,7 +49,9 @@ menu_sui() {
                 rm -f /etc/systemd/system/{s-ui,sing-box}.service
                 systemctl daemon-reload
                 rm -rf /usr/local/s-ui
+                clear
                 echo -e "${green}✅ Sui 面板已卸载${reset}"
+                echo -e "${blue}━━━━━━━━━━━━━━━━━━━━━━━━━━${reset}"
                 pause_and_return
                 ;;
             0)
