@@ -4,51 +4,44 @@ green="\033[32m"
 red="\033[31m"
 re="\033[0m"
 
-XRAY_BIN="/usr/local/bin/xray"
+CONTAINER_NAME="xray"
 CONFIG_DIR="/usr/local/etc/xray"
 CONFIG_FILE="$CONFIG_DIR/config.json"
 LIST_FILE="$CONFIG_DIR/node.txt"
-KEEPALIVE_SCRIPT="/usr/local/bin/xray_keepalive.sh"
 
-# 安装依赖
-install_deps() {
-    echo -e "${green}安装依赖...${re}"
-    apk add -q --no-cache bash curl wget unzip iproute2 openssl >/dev/null 2>&1
+install_docker() {
+    if ! command -v docker >/dev/null 2>&1; then
+        echo -e "${green}安装 Docker...${re}"
+        apk add --no-cache docker bash curl unzip iproute2 openssl >/dev/null 2>&1
+        rc-update add docker boot
+        service docker start
+    else
+        echo -e "${green}Docker 已安装${re}"
+    fi
 }
 
-# 安装 Xray
-install_xray() {
-    if [ -f "$CONFIG_FILE" ]; then
-        echo -e "${red}已检测到安装，请先卸载！${re}"
-        return
-    fi
+generate_keys() {
+    TEMP_DIR=$(mktemp -d)
+    docker run --rm -v $TEMP_DIR:/tmp teddysun/xray x25519 > $TEMP_DIR/keys.txt
+    PrivateKey=$(sed -n 's/.*Private Key: //p' $TEMP_DIR/keys.txt)
+    PublicKey=$(sed -n 's/.*Public Key: //p' $TEMP_DIR/keys.txt)
+    rm -rf $TEMP_DIR
+}
 
-    mkdir -p "$CONFIG_DIR" /usr/local/bin
-
-    echo -e "${green}下载官方安装脚本并安装 Xray...${re}"
-    bash <(curl -Ls https://raw.githubusercontent.com/XTLS/Xray-install/main/install-release.sh)
-
-    if [ ! -x "$XRAY_BIN" ]; then
-        echo -e "${red}Xray 安装失败，请检查系统架构${re}"
-        exit 1
-    fi
-
+setup_config() {
+    mkdir -p "$CONFIG_DIR"
     read -p "请输入端口 (默认 443): " input_port
     PORT=${input_port:-443}
     read -p "请输入 SNI 域名 (默认 www.yahoo.com): " input_sni
     SNI=${input_sni:-www.yahoo.com}
-
     UUID=$(cat /proc/sys/kernel/random/uuid)
-    KEYS=$($XRAY_BIN x25519)
-    PrivateKey=$(echo "$KEYS" | sed -n 's/.*Private Key: //p')
-    PublicKey=$(echo "$KEYS" | sed -n 's/.*Public Key: //p')
     shortid=$(openssl rand -hex 8)
+    generate_keys
 
-    if [ -z "$PrivateKey" ] || [ -z "$PublicKey" ]; then
-        echo -e "${red}生成密钥失败，请检查 Xray 可执行文件${re}"
-        exit 1
-    fi
+    write_config
+}
 
+write_config() {
     cat > $CONFIG_FILE <<EOF
 {
   "inbounds": [
@@ -78,84 +71,73 @@ install_xray() {
   ]
 }
 EOF
+}
 
-    restart_xray
-    check_node
+generate_node() {
+    IP=$(curl -s ipv4.ip.sb)
+    ISP=$(curl -s https://speed.cloudflare.com/meta | awk -F\" '{print $26"-"$18}' | sed -e 's/ /_/g')
+    cat > $LIST_FILE <<EOF
+vless://${UUID}@${IP}:${PORT}?encryption=none&flow=xtls-rprx-vision&security=reality&sni=${SNI}&fp=chrome&pbk=${PublicKey}&sid=${shortid}&type=tcp&headerType=none#$ISP
+EOF
+}
+
+start_xray() {
+    docker rm -f $CONTAINER_NAME >/dev/null 2>&1
+    docker run -d --name $CONTAINER_NAME -p $PORT:$PORT -v $CONFIG_FILE:/etc/xray/config.json teddysun/xray
+    sleep 2
+    echo -e "${green}Xray Docker 已启动${re}"
+    generate_node
+    cat $LIST_FILE
 }
 
 restart_xray() {
-    pkill -f "$XRAY_BIN" >/dev/null 2>&1
-    nohup $XRAY_BIN -c $CONFIG_FILE >/dev/null 2>&1 &
+    docker restart $CONTAINER_NAME
     sleep 2
-    update_node
-    start_keepalive
-}
-
-update_node() {
-    UUID=$(sed -n 's/.*"id": *"\([^"]*\)".*/\1/p' $CONFIG_FILE)
-    PORT=$(sed -n 's/.*"port": *\([0-9]*\).*/\1/p' $CONFIG_FILE)
-    PublicKey=$(sed -n 's/.*"privateKey": *"\([^"]*\)".*/\1/p' $CONFIG_FILE)
-    shortid=$(sed -n 's/.*"shortIds": *\["\([^"]*\)".*/\1/p' $CONFIG_FILE)
-    sni=$(sed -n 's/.*"serverNames": *\["\([^"]*\)".*/\1/p' $CONFIG_FILE)
-    IP=$(curl -s ipv4.ip.sb)
-    ISP=$(curl -s https://speed.cloudflare.com/meta | awk -F\" '{print $26"-"$18}' | sed -e 's/ /_/g')
-
-    cat > $LIST_FILE <<EOF
-vless://${UUID}@${IP}:${PORT}?encryption=none&flow=xtls-rprx-vision&security=reality&sni=${sni}&fp=chrome&pbk=${PublicKey}&sid=${shortid}&type=tcp&headerType=none#$ISP
-EOF
-}
-
-start_keepalive() {
-    pkill -f "$KEEPALIVE_SCRIPT" >/dev/null 2>&1
-    cat > $KEEPALIVE_SCRIPT <<'EOF'
-#!/bin/sh
-CONFIG_FILE="/usr/local/etc/xray/config.json"
-XRAY_BIN="/usr/local/bin/xray"
-while true; do
-    if ! pgrep -f "$XRAY_BIN" >/dev/null 2>&1; then
-        nohup $XRAY_BIN -c $CONFIG_FILE >/dev/null 2>&1 &
-    fi
-    sleep 5
-done
-EOF
-    chmod +x $KEEPALIVE_SCRIPT
-    nohup $KEEPALIVE_SCRIPT >/dev/null 2>&1 &
-}
-
-check_node() {
-    PORT=$(sed -n 's/.*"port": *\([0-9]*\).*/\1/p' $CONFIG_FILE)
-    IP=$(curl -s ipv4.ip.sb)
-    echo -e "${green}检查端口 $PORT 是否开放...${re}"
-    if nc -zv -w3 $IP $PORT >/dev/null 2>&1; then
-        echo -e "${green}端口开放，可连接！${re}"
-    else
-        echo -e "${red}端口未开放或被阻塞！${re}"
-    fi
-    echo -e "${green}节点信息:${re}"
+    echo -e "${green}Xray Docker 已重启${re}"
     cat $LIST_FILE
+}
+
+stop_xray() {
+    docker stop $CONTAINER_NAME >/dev/null 2>&1
+    echo -e "${green}Xray Docker 已停止${re}"
+}
+
+modify_port_sni() {
+    read -p "请输入新端口 (当前 $PORT): " new_port
+    PORT=${new_port:-$PORT}
+    read -p "请输入新 SNI (当前 $SNI): " new_sni
+    SNI=${new_sni:-$SNI}
+    write_config
+    restart_xray
+}
+
+uninstall() {
+    docker rm -f $CONTAINER_NAME >/dev/null 2>&1
+    rm -rf $CONFIG_DIR
+    echo -e "${green}卸载完成${re}"
 }
 
 show_menu() {
     clear
     echo -e "${green}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${re}"
-    echo -e "${green}  VLESS Reality Alpine 安装脚本${re}"
+    echo -e "${green}      Xray Reality Docker 管理脚本${re}"
     echo -e "${green}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${re}"
-    echo -e "${green}1) 安装并校验节点${re}"
-    echo -e "${green}2) 更换端口${re}"
-    echo -e "${green}3) 修改 SNI${re}"
-    echo -e "${green}4) 修改 UUID${re}"
-    echo -e "${green}5) 查看节点${re}"
-    echo -e "${green}6) 卸载${re}"
+    echo -e "${green}1) 安装并启动 Xray Docker${re}"
+    echo -e "${green}2) 修改端口/SNI 并重启${re}"
+    echo -e "${green}3) 重启 Xray Docker${re}"
+    echo -e "${green}4) 停止 Xray Docker${re}"
+    echo -e "${green}5) 查看节点信息${re}"
+    echo -e "${green}6) 卸载 Xray Docker${re}"
     echo -e "${green}0) 退出${re}"
     echo -e "${green}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${re}"
     read -p "请输入选项: " num
     case "$num" in
-        1) install_deps; install_xray ;;
-        2) read -p "请输入新端口: " p; sed -i "s/\"port\": [0-9]\+/\"port\": $p/" $CONFIG_FILE; restart_xray; check_node ;;
-        3) read -p "请输入新 SNI: " s; sed -i "s/\"serverNames\": \[\".*\"\]/\"serverNames\": [\"$s\"]/" $CONFIG_FILE; restart_xray; check_node ;;
-        4) new_uuid=$(cat /proc/sys/kernel/random/uuid); sed -i "s/\"id\": \".*\"/\"id\": \"$new_uuid\"/" $CONFIG_FILE; restart_xray; check_node ;;
+        1) install_docker; setup_config; start_xray ;;
+        2) modify_port_sni ;;
+        3) restart_xray ;;
+        4) stop_xray ;;
         5) cat $LIST_FILE ;;
-        6) pkill -f "$XRAY_BIN"; pkill -f "$KEEPALIVE_SCRIPT"; rm -rf $XRAY_BIN $CONFIG_DIR $KEEPALIVE_SCRIPT; echo -e "${green}已卸载完成！${re}" ;;
+        6) uninstall ;;
         0) exit 0 ;;
         *) echo -e "${red}无效选项！${re}" ;;
     esac
