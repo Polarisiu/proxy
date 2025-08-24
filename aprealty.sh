@@ -9,6 +9,7 @@ CONFIG_DIR="/usr/local/etc/xray"
 CONFIG_FILE="$CONFIG_DIR/config.json"
 LIST_FILE="$CONFIG_DIR/node.txt"
 
+# 安装 Docker
 install_docker() {
     if ! command -v docker >/dev/null 2>&1; then
         echo -e "${green}安装 Docker...${re}"
@@ -20,29 +21,18 @@ install_docker() {
     fi
 }
 
+# 生成 x25519 密钥
 generate_keys() {
     TEMP_DIR=$(mktemp -d)
-    docker run --rm -v $TEMP_DIR:/tmp teddysun/xray x25519 > $TEMP_DIR/keys.txt
+    docker run --rm --privileged -v $TEMP_DIR:/tmp teddysun/xray x25519 > $TEMP_DIR/keys.txt
     PrivateKey=$(sed -n 's/.*Private Key: //p' $TEMP_DIR/keys.txt)
     PublicKey=$(sed -n 's/.*Public Key: //p' $TEMP_DIR/keys.txt)
     rm -rf $TEMP_DIR
 }
 
-setup_config() {
-    mkdir -p "$CONFIG_DIR"
-    read -p "请输入端口 (默认 443): " input_port
-    PORT=${input_port:-443}
-    read -p "请输入 SNI 域名 (默认 www.yahoo.com): " input_sni
-    SNI=${input_sni:-www.yahoo.com}
-    UUID=$(cat /proc/sys/kernel/random/uuid)
-    shortid=$(openssl rand -hex 8)
-    generate_keys
-
-    write_config
-}
-
+# 写配置文件
 write_config() {
-    cat > $CONFIG_FILE <<EOF
+cat > $CONFIG_FILE <<EOF
 {
   "inbounds": [
     {
@@ -73,6 +63,20 @@ write_config() {
 EOF
 }
 
+# 设置配置
+setup_config() {
+    mkdir -p "$CONFIG_DIR"
+    read -p "请输入端口 (默认 443): " input_port
+    PORT=${input_port:-443}
+    read -p "请输入 SNI 域名 (默认 www.yahoo.com): " input_sni
+    SNI=${input_sni:-www.yahoo.com}
+    UUID=$(cat /proc/sys/kernel/random/uuid)
+    shortid=$(openssl rand -hex 8)
+    generate_keys
+    write_config
+}
+
+# 生成节点信息
 generate_node() {
     IP=$(curl -s ipv4.ip.sb)
     ISP=$(curl -s https://speed.cloudflare.com/meta | awk -F\" '{print $26"-"$18}' | sed -e 's/ /_/g')
@@ -81,15 +85,18 @@ vless://${UUID}@${IP}:${PORT}?encryption=none&flow=xtls-rprx-vision&security=rea
 EOF
 }
 
+# 启动 Xray Docker
 start_xray() {
     docker rm -f $CONTAINER_NAME >/dev/null 2>&1
-    docker run -d --name $CONTAINER_NAME -p $PORT:$PORT -v $CONFIG_FILE:/etc/xray/config.json teddysun/xray
+    docker run -d --name $CONTAINER_NAME --privileged -p $PORT:$PORT \
+      -v $CONFIG_FILE:/etc/xray/config.json teddysun/xray
     sleep 2
     echo -e "${green}Xray Docker 已启动${re}"
     generate_node
     cat $LIST_FILE
 }
 
+# 重启 Xray Docker
 restart_xray() {
     docker restart $CONTAINER_NAME
     sleep 2
@@ -97,11 +104,13 @@ restart_xray() {
     cat $LIST_FILE
 }
 
+# 停止 Xray Docker
 stop_xray() {
     docker stop $CONTAINER_NAME >/dev/null 2>&1
     echo -e "${green}Xray Docker 已停止${re}"
 }
 
+# 修改端口/SNI 并重启
 modify_port_sni() {
     read -p "请输入新端口 (当前 $PORT): " new_port
     PORT=${new_port:-$PORT}
@@ -111,12 +120,14 @@ modify_port_sni() {
     restart_xray
 }
 
+# 卸载 Xray Docker
 uninstall() {
     docker rm -f $CONTAINER_NAME >/dev/null 2>&1
     rm -rf $CONFIG_DIR
     echo -e "${green}卸载完成${re}"
 }
 
+# 菜单
 show_menu() {
     clear
     echo -e "${green}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${re}"
