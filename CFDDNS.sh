@@ -123,6 +123,22 @@ set_telegram_settings() {
     [ -n "$ChatID" ] && sed -i "s|^Telegram_Chat_ID=.*|Telegram_Chat_ID=\"$ChatID\"|" "$CONFIG_FILE"
 }
 
+# ================== 发送 Telegram 通知 ==================
+send_telegram_notification() {
+    source "$CONFIG_FILE"
+    if [ -z "$Telegram_Bot_Token" ] || [ -z "$Telegram_Chat_ID" ]; then
+        echo -e "${Error}Telegram Bot Token 或 Chat ID 未配置！"
+        return
+    fi
+
+    get_public_ip
+    msg="当前 DDNS IP 状态：\nIPv4: $Public_IPv4\nIPv6: $Public_IPv6\nIPv4 域名: ${Domains[*]}\nIPv6 域名: ${Domainsv6[*]}"
+    curl -s -X POST "https://api.telegram.org/bot$Telegram_Bot_Token/sendMessage" \
+        -d chat_id="$Telegram_Chat_ID" \
+        -d text="$msg" >/dev/null 2>&1
+    echo -e "${Info}Telegram 通知已发送！"
+}
+
 # ================== 运行 DDNS ==================
 run_ddns() {
     if grep -qiE "alpine" /etc/os-release; then
@@ -186,50 +202,55 @@ show_status() {
         echo -e "${Error}未找到配置文件！"
     fi
     echo -e "${GREEN}=============================${NC}"
+    read -rp "按回车返回菜单..."
 }
 
 # ================== 显示菜单 ==================
 menu() {
-    show_title
-    echo -e "${GREEN}1: 查看当前 DDNS 状态${NC}"
-    echo -e "${GREEN}2: 重启 DDNS${NC}"
-    echo -e "${GREEN}3: 停止 DDNS${NC}"
-    echo -e "${GREEN}4: 卸载 DDNS${NC}"
-    echo -e "${GREEN}5: 修改域名${NC}"
-    echo -e "${GREEN}6: 修改 Cloudflare API${NC}"
-    echo -e "${GREEN}7: 配置 Telegram 通知${NC}"
-    echo -e "${GREEN}8: 修改 DDNS 运行时间${NC}"
-    echo -e "${GREEN}0: 退出${NC}"
-    echo
-    read -rp "选择: " option
-    case "$option" in
-        0) exit 0 ;;
-        1) show_status ; read -rp "按回车返回菜单..." ;;
-        2) run_ddns ; read -rp "按回车返回菜单..." ;;
-        3) stop_ddns ; read -rp "按回车返回菜单..." ;;
-        4)
-            rm -rf /etc/DDNS /usr/bin/ddns
-            systemctl disable --now ddns.service ddns.timer 2>/dev/null
-            echo -e "${Info}DDNS 已卸载！"
-            read -rp "按回车返回菜单..."
-            ;;
-        5) set_domain ; read -rp "按回车返回菜单..." ;;
-        6) set_cloudflare_api ; read -rp "按回车返回菜单..." ;;
-        7) set_telegram_settings ; read -rp "按回车返回菜单..." ;;
-        8)
-            read -rp "请输入新的运行间隔（分钟）: " interval
-            if grep -qiE "alpine" /etc/os-release; then
-                (crontab -l | grep -v "$DDNS_SCRIPT"; echo "*/$interval * * * * /bin/bash $DDNS_SCRIPT >/dev/null 2>&1") | crontab -
-            else
-                sed -i "s/OnUnitActiveSec=.*s/OnUnitActiveSec=${interval}m/" /etc/systemd/system/ddns.timer
-                systemctl daemon-reload
-                systemctl enable --now ddns.timer
-            fi
-            echo -e "${Info}运行间隔已修改为 ${interval} 分钟"
-            read -rp "按回车返回菜单..."
-            ;;
-        *) echo -e "${Error}无效选项" ; read -rp "按回车返回菜单..." ;;
-    esac
+    while true; do
+        show_title
+        echo -e "${GREEN}1${NC}: 查看当前 DDNS 状态"
+        echo -e "${GREEN}2${NC}: 重启 DDNS"
+        echo -e "${GREEN}3${NC}: 停止 DDNS"
+        echo -e "${GREEN}4${NC}: 卸载 DDNS"
+        echo -e "${GREEN}5${NC}: 修改域名"
+        echo -e "${GREEN}6${NC}: 修改 Cloudflare API"
+        echo -e "${GREEN}7${NC}: 配置 Telegram 通知"
+        echo -e "${GREEN}8${NC}: 修改 DDNS 运行时间"
+        echo -e "${GREEN}9${NC}: 立即发送当前 IP 到 Telegram"
+        echo -e "${GREEN}0${NC}: 退出"
+        echo
+        read -rp "选择: " option
+        case "$option" in
+            0) exit 0 ;;
+            1) show_status ;;
+            2) run_ddns ;;
+            3) stop_ddns ;;
+            4)
+                rm -rf /etc/DDNS /usr/bin/ddns
+                systemctl disable --now ddns.service ddns.timer 2>/dev/null
+                echo -e "${Info}DDNS 已卸载！"
+                read -rp "按回车返回菜单..."
+                ;;
+            5) set_domain ;;
+            6) set_cloudflare_api ;;
+            7) set_telegram_settings ;;
+            8)
+                read -rp "请输入新的运行间隔（分钟）: " interval
+                if grep -qiE "alpine" /etc/os-release; then
+                    (crontab -l | grep -v "$DDNS_SCRIPT"; echo "*/$interval * * * * /bin/bash $DDNS_SCRIPT >/dev/null 2>&1") | crontab -
+                else
+                    sed -i "s/OnUnitActiveSec=.*s/OnUnitActiveSec=${interval}m/" /etc/systemd/system/ddns.timer
+                    systemctl daemon-reload
+                    systemctl enable --now ddns.timer
+                fi
+                echo -e "${Info}运行间隔已修改为 ${interval} 分钟"
+                read -rp "按回车返回菜单..."
+                ;;
+            9) send_telegram_notification ; read -rp "按回车返回菜单..." ;;
+            *) echo -e "${Error}无效选项" ; read -rp "按回车返回菜单..." ;;
+        esac
+    done
 }
 
 # ================== 初始化 ==================
@@ -242,6 +263,4 @@ if [ ! -f "$CONFIG_FILE" ]; then
     run_ddns
 fi
 
-while true; do
-    menu
-done
+menu
