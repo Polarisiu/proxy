@@ -1,9 +1,9 @@
 #!/bin/bash
-# MTProto Proxy 管理脚本 for Docker
+# MTProto Proxy 管理脚本 for Docker (更新版)
 
 # 容器与镜像配置
 NAME="mtproto-proxy"
-IMAGE="abogatikov/mtproxy:latest"
+IMAGE="telegrammessenger/proxy:latest"
 VOLUME="proxy-config"
 
 function install_proxy() {
@@ -17,16 +17,28 @@ function install_proxy() {
         docker rm -f ${NAME}
     fi
 
+    # 创建持久化卷
+    docker volume create ${VOLUME} >/dev/null 2>&1
+
+    # 启动代理
     docker run -d \
-        -p ${PORT}:${PORT} \
-        -e HTTP_PORT=${PORT} \
         --name=${NAME} \
         --restart=always \
         -v ${VOLUME}:/data \
+        -p ${PORT}:${PORT}/tcp \
+        -p ${PORT}:${PORT}/udp \
         ${IMAGE}
 
+    echo "⏳ 等待 3 秒以生成 secret..."
     sleep 3
-    SECRET=$(docker exec -it ${NAME} cat /data/secret | tr -d '\r')
+
+    # 获取密钥
+    SECRET=$(docker exec ${NAME} cat /data/secret 2>/dev/null)
+    if [[ -z "$SECRET" ]]; then
+        echo "❌ 获取密钥失败，请检查容器是否正常运行。"
+        return
+    fi
+
     IP=$(curl -s ifconfig.me)
 
     echo -e "\n✅ 安装完成！代理信息如下："
@@ -45,6 +57,10 @@ function uninstall_proxy() {
 }
 
 function show_logs() {
+    if ! docker ps --format '{{.Names}}' | grep -Eq "^${NAME}\$"; then
+        echo "❌ 容器未运行，请先安装或启动代理。"
+        return
+    fi
     echo -e "\n=== MTProto Proxy 日志 ===\n"
     docker logs -f ${NAME}
 }
