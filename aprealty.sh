@@ -36,6 +36,7 @@ install_vless() {
     PublicKey=$(echo "$KEYS" | awk '/Public/ {print $3}')
     shortid=$(openssl rand -hex 8)
 
+    # 生成配置文件，监听 IPv4 和 IPv6
     cat > $CONFIG_FILE <<EOF
 {
   "inbounds": [
@@ -54,9 +55,10 @@ install_vless() {
       "streamSettings": {
         "network": "tcp",
         "security": "reality",
+        "listen": "0.0.0.0",
         "realitySettings": {
           "show": false,
-          "dest": "151.101.1.140:443",
+          "dest": "1.1.1.1:443",
           "xver": 0,
           "serverNames": ["$SNI"],
           "privateKey": "$PrivateKey",
@@ -70,15 +72,25 @@ EOF
 
     nohup $XRAY_BIN -c $CONFIG_FILE >/dev/null 2>&1 &
     sleep 2
+
+    update_node_link
+    echo -e "${green}安装完成！节点信息如下:${re}"
+    cat $LIST_FILE
+}
+
+# ================== 更新节点信息 ==================
+update_node_link() {
+    UUID=$(sed -n 's/.*"id": *"\([^"]*\)".*/\1/p' $CONFIG_FILE | head -n1)
+    PORT=$(sed -n 's/.*"port": *\([0-9]*\).*/\1/p' $CONFIG_FILE | head -n1)
+    PublicKey=$(sed -n 's/.*"publicKey": *"\([^"]*\)".*/\1/p' $CONFIG_FILE | head -n1)
+    shortid=$(sed -n 's/.*"shortIds": *\["\([^"]*\)".*/\1/p' $CONFIG_FILE | head -n1)
+    sni=$(sed -n 's/.*"serverNames": *\["\([^"]*\)".*/\1/p' $CONFIG_FILE | head -n1)
     IP=$(curl -s ipv4.ip.sb)
     ISP=$(curl -s https://speed.cloudflare.com/meta | awk -F\" '{print $26"-"$18}' | sed -e 's/ /_/g')
 
     cat > $LIST_FILE <<EOF
-vless://${UUID}@${IP}:${PORT}?encryption=none&flow=xtls-rprx-vision&security=reality&sni=${SNI}&fp=chrome&pbk=${PublicKey}&sid=${shortid}&type=tcp&headerType=none#$ISP
+vless://${UUID}@${IP}:${PORT}?encryption=none&flow=xtls-rprx-vision&security=reality&sni=${sni}&fp=chrome&pbk=${PublicKey}&sid=${shortid}&type=tcp&headerType=none#$ISP
 EOF
-
-    echo -e "${green}安装完成！节点信息如下:${re}"
-    cat $LIST_FILE
 }
 
 # ================== 更换端口 ==================
@@ -137,24 +149,12 @@ uninstall() {
     echo -e "${green}已卸载完成！${re}"
 }
 
-# ================== 重启函数 ==================
+# ================== 重启 Xray ==================
 restart_xray() {
     pkill -f "$XRAY_BIN"
     nohup $XRAY_BIN -c $CONFIG_FILE >/dev/null 2>&1 &
     sleep 2
-
-    UUID=$(grep -oP '(?<="id": ")[^"]*' $CONFIG_FILE)
-    PORT=$(grep -oP '(?<="port": )\d+' $CONFIG_FILE)
-    SNI=$(grep -oP '(?<="serverNames\": \[")[^"]*' $CONFIG_FILE)
-    PublicKey=$(grep -A1 'publicKey' $CONFIG_FILE | tail -n1 | awk -F'"' '{print $4}')
-    shortid=$(grep -oP '(?<="shortIds\": \[")[^"]*' $CONFIG_FILE)
-
-    IP=$(curl -s ipv4.ip.sb)
-    ISP=$(curl -s https://speed.cloudflare.com/meta | awk -F\" '{print $26"-"$18}' | sed -e 's/ /_/g')
-
-    cat > $LIST_FILE <<EOF
-vless://${UUID}@${IP}:${PORT}?encryption=none&flow=xtls-rprx-vision&security=reality&sni=${SNI}&fp=chrome&pbk=${PublicKey}&sid=${shortid}&type=tcp&headerType=none#$ISP
-EOF
+    update_node_link
 }
 
 # ================== 菜单 ==================
