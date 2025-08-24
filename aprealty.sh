@@ -1,6 +1,5 @@
 #!/bin/sh
 
-# ================== 颜色定义 ==================
 green="\033[32m"
 red="\033[31m"
 re="\033[0m"
@@ -11,44 +10,46 @@ CONFIG_FILE="$CONFIG_DIR/config.json"
 LIST_FILE="$CONFIG_DIR/node.txt"
 KEEPALIVE_SCRIPT="/usr/local/bin/xray_keepalive.sh"
 
-# ================== 安装依赖 ==================
 install_deps() {
     echo -e "${green}安装依赖...${re}"
-    apk add -q --no-cache bash curl wget unzip openssl iproute2 openntpd >/dev/null 2>&1
-    ntpd -q -p pool.ntp.org >/dev/null 2>&1
+    apk add -q --no-cache bash curl wget unzip openssl iproute2 >/dev/null 2>&1
 }
 
-# ================== 安装 Xray ==================
 install_xray() {
     if [ -f "$CONFIG_FILE" ]; then
         echo -e "${red}已检测到安装，请先卸载！${re}"
         return
     fi
-    mkdir -p "$CONFIG_DIR"
+
+    mkdir -p "$CONFIG_DIR" /usr/local/bin
     echo -e "${green}下载并安装 Xray...${re}"
-    wget -q https://github.com/XTLS/Xray-core/releases/latest/download/Xray-linux-64.zip -O /tmp/xray.zip
+
+    # 固定版本 v25.8.3 musl 64 位
+    wget -O /tmp/xray.zip https://github.com/XTLS/Xray-core/releases/download/v25.8.3/Xray-linux-musl-64.zip
     unzip -qo /tmp/xray.zip -d /usr/local/bin
     chmod +x $XRAY_BIN
 
-    # 用户自定义端口和 SNI
+    if [ ! -x "$XRAY_BIN" ]; then
+        echo -e "${red}Xray 安装失败，请检查下载链接或系统架构${re}"
+        exit 1
+    fi
+
     read -p "请输入端口 (默认 443): " input_port
     PORT=${input_port:-443}
-    read -p "请输入 SNI 域名 (必须可访问 HTTPS，默认 www.yahoo.com): " input_sni
+    read -p "请输入 SNI 域名 (默认 www.yahoo.com): " input_sni
     SNI=${input_sni:-www.yahoo.com}
 
-    # 生成 UUID / Key / shortid
     UUID=$(cat /proc/sys/kernel/random/uuid)
     KEYS=$($XRAY_BIN x25519)
     PrivateKey=$(echo "$KEYS" | sed -n 's/.*Private Key: //p')
     PublicKey=$(echo "$KEYS" | sed -n 's/.*Public Key: //p')
     shortid=$(openssl rand -hex 8)
 
-    if [ -z "$PublicKey" ] || [ -z "$PrivateKey" ]; then
+    if [ -z "$PrivateKey" ] || [ -z "$PublicKey" ]; then
         echo -e "${red}生成密钥失败，请检查 Xray 可执行文件${re}"
         exit 1
     fi
 
-    # 生成配置文件，监听 IPv4 + IPv6
     cat > $CONFIG_FILE <<EOF
 {
   "inbounds": [
@@ -57,10 +58,7 @@ install_xray() {
       "protocol": "vless",
       "settings": {
         "clients": [
-          {
-            "id": "$UUID",
-            "flow": "xtls-rprx-vision"
-          }
+          {"id": "$UUID","flow": "xtls-rprx-vision"}
         ],
         "decryption": "none"
       },
@@ -86,13 +84,20 @@ EOF
     check_node
 }
 
-# ================== 更新节点信息 ==================
+restart_xray() {
+    pkill -f "$XRAY_BIN" >/dev/null 2>&1
+    nohup $XRAY_BIN -c $CONFIG_FILE >/dev/null 2>&1 &
+    sleep 2
+    update_node
+    start_keepalive
+}
+
 update_node() {
-    UUID=$(sed -n 's/.*"id": *"\([^"]*\)".*/\1/p' $CONFIG_FILE | head -n1)
-    PORT=$(sed -n 's/.*"port": *\([0-9]*\).*/\1/p' $CONFIG_FILE | head -n1)
-    PublicKey=$(sed -n 's/.*"privateKey": *"\([^"]*\)".*/\1/p' $CONFIG_FILE | head -n1)
-    shortid=$(sed -n 's/.*"shortIds": *\["\([^"]*\)".*/\1/p' $CONFIG_FILE | head -n1)
-    sni=$(sed -n 's/.*"serverNames": *\["\([^"]*\)".*/\1/p' $CONFIG_FILE | head -n1)
+    UUID=$(sed -n 's/.*"id": *"\([^"]*\)".*/\1/p' $CONFIG_FILE)
+    PORT=$(sed -n 's/.*"port": *\([0-9]*\).*/\1/p' $CONFIG_FILE)
+    PublicKey=$(sed -n 's/.*"privateKey": *"\([^"]*\)".*/\1/p' $CONFIG_FILE)
+    shortid=$(sed -n 's/.*"shortIds": *\["\([^"]*\)".*/\1/p' $CONFIG_FILE)
+    sni=$(sed -n 's/.*"serverNames": *\["\([^"]*\)".*/\1/p' $CONFIG_FILE)
     IP=$(curl -s ipv4.ip.sb)
     ISP=$(curl -s https://speed.cloudflare.com/meta | awk -F\" '{print $26"-"$18}' | sed -e 's/ /_/g')
 
@@ -101,7 +106,6 @@ vless://${UUID}@${IP}:${PORT}?encryption=none&flow=xtls-rprx-vision&security=rea
 EOF
 }
 
-# ================== 保活脚本 ==================
 start_keepalive() {
     pkill -f "$KEEPALIVE_SCRIPT" >/dev/null 2>&1
     cat > $KEEPALIVE_SCRIPT <<'EOF'
@@ -119,31 +123,19 @@ EOF
     nohup $KEEPALIVE_SCRIPT >/dev/null 2>&1 &
 }
 
-# ================== 重启 Xray ==================
-restart_xray() {
-    pkill -f "$XRAY_BIN" >/dev/null 2>&1
-    nohup $XRAY_BIN -c $CONFIG_FILE >/dev/null 2>&1 &
-    sleep 2
-    update_node
-    start_keepalive
-}
-
-# ================== 检查端口和节点可用性 ==================
 check_node() {
+    PORT=$(sed -n 's/.*"port": *\([0-9]*\).*/\1/p' $CONFIG_FILE)
     IP=$(curl -s ipv4.ip.sb)
-    PORT=$(sed -n 's/.*"port": *\([0-9]*\).*/\1/p' $CONFIG_FILE | head -n1)
     echo -e "${green}检查端口 $PORT 是否开放...${re}"
     if nc -zv -w3 $IP $PORT >/dev/null 2>&1; then
         echo -e "${green}端口开放，可连接！${re}"
     else
         echo -e "${red}端口未开放或被阻塞！${re}"
     fi
-
     echo -e "${green}节点信息:${re}"
     cat $LIST_FILE
 }
 
-# ================== 菜单 ==================
 show_menu() {
     clear
     echo -e "${green}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${re}"
