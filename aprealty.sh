@@ -14,7 +14,8 @@ KEEPALIVE_SCRIPT="/usr/local/bin/xray_keepalive.sh"
 # ================== 安装依赖 ==================
 install_deps() {
     echo -e "${green}安装依赖...${re}"
-    apk add -q --no-cache curl wget unzip openssl bash >/dev/null 2>&1
+    apk add -q --no-cache curl wget unzip openssl bash openntpd >/dev/null 2>&1
+    ntpd -q -p pool.ntp.org >/dev/null 2>&1
 }
 
 # ================== 安装 Xray ==================
@@ -77,8 +78,7 @@ install_xray() {
 EOF
 
     restart_xray
-    echo -e "${green}安装完成！节点信息如下:${re}"
-    cat $LIST_FILE
+    check_node
 }
 
 # ================== 更新节点信息 ==================
@@ -98,9 +98,7 @@ EOF
 
 # ================== 保活脚本 ==================
 start_keepalive() {
-    # 停掉已有保活脚本
     pkill -f "$KEEPALIVE_SCRIPT" >/dev/null 2>&1
-    # 创建保活脚本
     cat > $KEEPALIVE_SCRIPT <<'EOF'
 #!/bin/sh
 CONFIG_FILE="/usr/local/etc/xray/config.json"
@@ -125,6 +123,21 @@ restart_xray() {
     start_keepalive
 }
 
+# ================== 检查端口和节点可用性 ==================
+check_node() {
+    IP=$(curl -s ipv4.ip.sb)
+    PORT=$(sed -n 's/.*"port": *\([0-9]*\).*/\1/p' $CONFIG_FILE | head -n1)
+    echo -e "${green}检查端口 $PORT 是否开放...${re}"
+    if nc -zv -w3 $IP $PORT >/dev/null 2>&1; then
+        echo -e "${green}端口开放，可连接！${re}"
+    else
+        echo -e "${red}端口未开放或被阻塞！${re}"
+    fi
+
+    echo -e "${green}节点信息:${re}"
+    cat $LIST_FILE
+}
+
 # ================== 更换端口 ==================
 change_port() {
     if [ ! -f "$CONFIG_FILE" ]; then
@@ -134,8 +147,7 @@ change_port() {
     read -p "请输入新端口: " new_port
     sed -i "s/\"port\": [0-9]\+/\"port\": $new_port/" $CONFIG_FILE
     restart_xray
-    echo -e "${green}端口已修改，新节点信息:${re}"
-    cat $LIST_FILE
+    check_node
 }
 
 # ================== 修改 SNI ==================
@@ -147,8 +159,7 @@ change_sni() {
     read -p "请输入新 SNI 域名: " new_sni
     sed -i "s/\"serverNames\": \[\".*\"\]/\"serverNames\": [\"$new_sni\"]/" $CONFIG_FILE
     restart_xray
-    echo -e "${green}SNI 已修改，新节点信息:${re}"
-    cat $LIST_FILE
+    check_node
 }
 
 # ================== 修改 UUID ==================
@@ -160,8 +171,7 @@ change_uuid() {
     NEW_UUID=$(cat /proc/sys/kernel/random/uuid)
     sed -i "s/\"id\": \".*\"/\"id\": \"$NEW_UUID\"/" $CONFIG_FILE
     restart_xray
-    echo -e "${green}UUID 已修改，新节点信息:${re}"
-    cat $LIST_FILE
+    check_node
 }
 
 # ================== 查看节点 ==================
@@ -186,9 +196,9 @@ uninstall() {
 show_menu() {
     clear
     echo -e "${green}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${re}"
-    echo -e "${green}  VLESS Reality 管理脚本${re}"
+    echo -e "${green}  VLESS Reality Alpine 管理脚本${re}"
     echo -e "${green}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${re}"
-    echo -e "${green}1) 安装${re}"
+    echo -e "${green}1) 安装并校验节点${re}"
     echo -e "${green}2) 更换端口${re}"
     echo -e "${green}3) 修改 SNI${re}"
     echo -e "${green}4) 修改 UUID${re}"
