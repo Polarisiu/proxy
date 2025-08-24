@@ -1,42 +1,48 @@
-#!/bin/bash
+#!/bin/sh
 
 # ================== 颜色定义 ==================
 green="\033[32m"
 red="\033[31m"
 re="\033[0m"
 
-# ================== 变量定义 ==================
 XRAY_BIN="/usr/local/bin/xray"
-CONFIG_FILE="/usr/local/etc/xray/config.json"
-LIST_FILE="/usr/local/etc/xray/node.txt"
+CONFIG_DIR="/usr/local/etc/xray"
+CONFIG_FILE="$CONFIG_DIR/config.json"
+LIST_FILE="$CONFIG_DIR/node.txt"
+KEEPALIVE_SCRIPT="/usr/local/bin/xray_keepalive.sh"
 
-# ================== 安装 ==================
-install_vless() {
+# ================== 安装依赖 ==================
+install_deps() {
+    echo -e "${green}安装依赖...${re}"
+    apk add -q --no-cache curl wget unzip openssl bash >/dev/null 2>&1
+}
+
+# ================== 安装 Xray ==================
+install_xray() {
     if [ -f "$CONFIG_FILE" ]; then
-        echo -e "${red}检测到已安装配置，请先卸载！${re}"
+        echo -e "${red}已检测到安装，请先卸载！${re}"
         return
     fi
-
-    apk add -q --no-cache curl wget unzip >/dev/null 2>&1
-    mkdir -p /usr/local/etc/xray
-
+    mkdir -p "$CONFIG_DIR"
     echo -e "${green}下载并安装 Xray...${re}"
     wget -q https://github.com/XTLS/Xray-core/releases/latest/download/Xray-linux-64.zip -O /tmp/xray.zip
     unzip -qo /tmp/xray.zip -d /usr/local/bin
     chmod +x $XRAY_BIN
 
-    UUID=$(cat /proc/sys/kernel/random/uuid)
+    # 用户自定义端口和 SNI
     read -p "请输入端口 (默认 443): " input_port
     PORT=${input_port:-443}
     read -p "请输入 SNI 域名 (默认 www.yahoo.com): " input_sni
     SNI=${input_sni:-www.yahoo.com}
 
+    # 生成 UUID / Key / shortid
+    UUID=$(cat /proc/sys/kernel/random/uuid)
     KEYS=$($XRAY_BIN x25519)
     PrivateKey=$(echo "$KEYS" | awk '/Private/ {print $3}')
     PublicKey=$(echo "$KEYS" | awk '/Public/ {print $3}')
     shortid=$(openssl rand -hex 8)
 
-    # 生成配置文件，监听 IPv4 和 IPv6
+    # 生成配置文件
     cat > $CONFIG_FILE <<EOF
 {
   "inbounds": [
@@ -70,16 +76,13 @@ install_vless() {
 }
 EOF
 
-    nohup $XRAY_BIN -c $CONFIG_FILE >/dev/null 2>&1 &
-    sleep 2
-
-    update_node_link
+    restart_xray
     echo -e "${green}安装完成！节点信息如下:${re}"
     cat $LIST_FILE
 }
 
 # ================== 更新节点信息 ==================
-update_node_link() {
+update_node() {
     UUID=$(sed -n 's/.*"id": *"\([^"]*\)".*/\1/p' $CONFIG_FILE | head -n1)
     PORT=$(sed -n 's/.*"port": *\([0-9]*\).*/\1/p' $CONFIG_FILE | head -n1)
     PublicKey=$(sed -n 's/.*"publicKey": *"\([^"]*\)".*/\1/p' $CONFIG_FILE | head -n1)
@@ -93,13 +96,42 @@ vless://${UUID}@${IP}:${PORT}?encryption=none&flow=xtls-rprx-vision&security=rea
 EOF
 }
 
+# ================== 保活脚本 ==================
+start_keepalive() {
+    # 停掉已有保活脚本
+    pkill -f "$KEEPALIVE_SCRIPT" >/dev/null 2>&1
+    # 创建保活脚本
+    cat > $KEEPALIVE_SCRIPT <<'EOF'
+#!/bin/sh
+CONFIG_FILE="/usr/local/etc/xray/config.json"
+XRAY_BIN="/usr/local/bin/xray"
+while true; do
+    if ! pgrep -f "$XRAY_BIN" >/dev/null 2>&1; then
+        nohup $XRAY_BIN -c $CONFIG_FILE >/dev/null 2>&1 &
+    fi
+    sleep 5
+done
+EOF
+    chmod +x $KEEPALIVE_SCRIPT
+    nohup $KEEPALIVE_SCRIPT >/dev/null 2>&1 &
+}
+
+# ================== 重启 Xray ==================
+restart_xray() {
+    pkill -f "$XRAY_BIN" >/dev/null 2>&1
+    nohup $XRAY_BIN -c $CONFIG_FILE >/dev/null 2>&1 &
+    sleep 2
+    update_node
+    start_keepalive
+}
+
 # ================== 更换端口 ==================
 change_port() {
     if [ ! -f "$CONFIG_FILE" ]; then
         echo -e "${red}未检测到配置文件，请先安装！${re}"
         return
     fi
-    read -p "请输入新的端口: " new_port
+    read -p "请输入新端口: " new_port
     sed -i "s/\"port\": [0-9]\+/\"port\": $new_port/" $CONFIG_FILE
     restart_xray
     echo -e "${green}端口已修改，新节点信息:${re}"
@@ -112,7 +144,7 @@ change_sni() {
         echo -e "${red}未检测到配置文件，请先安装！${re}"
         return
     fi
-    read -p "请输入新的 SNI 域名: " new_sni
+    read -p "请输入新 SNI 域名: " new_sni
     sed -i "s/\"serverNames\": \[\".*\"\]/\"serverNames\": [\"$new_sni\"]/" $CONFIG_FILE
     restart_xray
     echo -e "${green}SNI 已修改，新节点信息:${re}"
@@ -133,28 +165,21 @@ change_uuid() {
 }
 
 # ================== 查看节点 ==================
-show_link() {
+show_node() {
     if [ -f "$LIST_FILE" ]; then
         echo -e "${green}当前节点信息:${re}"
         cat $LIST_FILE
     else
-        echo -e "${red}未找到节点信息文件！${re}"
+        echo -e "${red}未找到节点信息！${re}"
     fi
 }
 
 # ================== 卸载 ==================
 uninstall() {
     pkill -f "$XRAY_BIN"
-    rm -rf $XRAY_BIN /usr/local/etc/xray
+    pkill -f "$KEEPALIVE_SCRIPT"
+    rm -rf $XRAY_BIN $CONFIG_DIR $KEEPALIVE_SCRIPT
     echo -e "${green}已卸载完成！${re}"
-}
-
-# ================== 重启 Xray ==================
-restart_xray() {
-    pkill -f "$XRAY_BIN"
-    nohup $XRAY_BIN -c $CONFIG_FILE >/dev/null 2>&1 &
-    sleep 2
-    update_node_link
 }
 
 # ================== 菜单 ==================
@@ -165,26 +190,25 @@ show_menu() {
     echo -e "${green}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${re}"
     echo -e "${green}1) 安装${re}"
     echo -e "${green}2) 更换端口${re}"
-    echo -e "${green}3) 修改 SNI 域名${re}"
-    echo -e "${green}4) 修改 UUID (密码)${re}"
-    echo -e "${green}5) 查看节点链接${re}"
+    echo -e "${green}3) 修改 SNI${re}"
+    echo -e "${green}4) 修改 UUID${re}"
+    echo -e "${green}5) 查看节点${re}"
     echo -e "${green}6) 卸载${re}"
     echo -e "${green}0) 退出${re}"
     echo -e "${green}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${re}"
     read -p "请输入选项: " num
     case "$num" in
-        1) install_vless ;;
+        1) install_deps; install_xray ;;
         2) change_port ;;
         3) change_sni ;;
         4) change_uuid ;;
-        5) show_link ;;
+        5) show_node ;;
         6) uninstall ;;
         0) exit 0 ;;
         *) echo -e "${red}无效选项！${re}" ;;
     esac
-    read -p "按回车键返回菜单..." enter
+    read -p "按回车返回菜单..." enter
     show_menu
 }
 
-# ================== 启动菜单 ==================
 show_menu
