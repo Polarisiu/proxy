@@ -132,12 +132,26 @@ send_telegram_notification() {
     fi
 
     get_public_ip
-    msg="当前 DDNS IP 状态：\nIPv4: $Public_IPv4\nIPv6: $Public_IPv6\nIPv4 域名: ${Domains[*]}\nIPv6 域名: ${Domainsv6[*]}"
+
+    msg="🌐 *当前 DDNS 状态*\n\n"
+
+    # 只显示存在的 IPv4 / IPv6
+    [ -n "$Public_IPv4" ] && msg+="🔹 IPv4: \`${Public_IPv4}\`\n"
+    [ -n "$Public_IPv6" ] && msg+="🔹 IPv6: \`${Public_IPv6}\`\n"
+
+    # 只显示存在的域名
+    [ -n "${Domains[*]}" ] && msg+="\n📄 *IPv4 域名*: \`${Domains[*]}\`\n"
+    [ -n "${Domainsv6[*]}" ] && msg+="📄 *IPv6 域名*: \`${Domainsv6[*]}\`\n"
+
+    # 发送消息
     curl -s -X POST "https://api.telegram.org/bot$Telegram_Bot_Token/sendMessage" \
         -d chat_id="$Telegram_Chat_ID" \
-        -d text="$msg" >/dev/null 2>&1
+        -d text="$msg" \
+        -d parse_mode="Markdown" >/dev/null 2>&1
+
     echo -e "${Info}Telegram 通知已发送！"
 }
+
 
 # ================== 运行 DDNS ==================
 run_ddns() {
