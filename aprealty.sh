@@ -10,11 +10,13 @@ CONFIG_FILE="$CONFIG_DIR/config.json"
 LIST_FILE="$CONFIG_DIR/node.txt"
 KEEPALIVE_SCRIPT="/usr/local/bin/xray_keepalive.sh"
 
+# 安装依赖
 install_deps() {
     echo -e "${green}安装依赖...${re}"
-    apk add -q --no-cache bash curl wget unzip openssl iproute2 >/dev/null 2>&1
+    apk add -q --no-cache bash curl wget unzip iproute2 openssl >/dev/null 2>&1
 }
 
+# 安装 Xray
 install_xray() {
     if [ -f "$CONFIG_FILE" ]; then
         echo -e "${red}已检测到安装，请先卸载！${re}"
@@ -22,15 +24,12 @@ install_xray() {
     fi
 
     mkdir -p "$CONFIG_DIR" /usr/local/bin
-    echo -e "${green}下载并安装 Xray...${re}"
 
-    # 固定版本 v25.8.3 musl 64 位
-    wget -O /tmp/xray.zip https://github.com/XTLS/Xray-core/releases/download/v25.8.3/Xray-linux-musl-64.zip
-    unzip -qo /tmp/xray.zip -d /usr/local/bin
-    chmod +x $XRAY_BIN
+    echo -e "${green}下载官方安装脚本并安装 Xray...${re}"
+    bash <(curl -Ls https://raw.githubusercontent.com/XTLS/Xray-install/main/install-release.sh)
 
     if [ ! -x "$XRAY_BIN" ]; then
-        echo -e "${red}Xray 安装失败，请检查下载链接或系统架构${re}"
+        echo -e "${red}Xray 安装失败，请检查系统架构${re}"
         exit 1
     fi
 
