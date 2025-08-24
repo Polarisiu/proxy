@@ -8,14 +8,13 @@
 # =========================
 GREEN="\033[32m"
 RED="\033[31m"
-YELLOW="\033[33m"
-BLUE="\033[36m"
 RESET="\033[0m"
 
 HYSTERIA_BIN="/usr/local/bin/hysteria"
 CONFIG_FILE="/etc/hysteria/config.yaml"
 INIT_SCRIPT="/etc/init.d/hysteria"
 PASS_FILE="/root/hysteria_pass.txt"
+SNI_FILE="/root/hysteria_sni.txt"
 
 # ===================== 工具函数 =====================
 detect_arch() {
@@ -55,7 +54,10 @@ generate_cert() {
 write_config() {
     local port="$1"
     local password="$2"
+    local domain="$3"
+    echo "$domain" > "$SNI_FILE"   # 保存 SNI 以便生成客户端链接
     cat > "$CONFIG_FILE" << EOF
+# SNI=$domain
 listen: :$port
 
 tls:
@@ -100,13 +102,16 @@ generate_client_link() {
         PORT=$(grep '^listen:' "$CONFIG_FILE" | sed 's/listen: *://')
         PASSWORD=$(cat "$PASS_FILE")
         # URL encode 密码
-        if command -v python3 >/dev/null 2>&1; then
-            PASSWORD_ENCODED=$(python3 -c "import urllib.parse; print(urllib.parse.quote('''$PASSWORD'''))")
+        PASSWORD_ENCODED=$(python3 -c "import urllib.parse; print(urllib.parse.quote('$PASSWORD'))")
+        # 从安装保存的 SNI 文件读取
+        if [ -f "$SNI_FILE" ]; then
+            SNI=$(cat "$SNI_FILE")
         else
-            PASSWORD_ENCODED="$PASSWORD"
+            SNI="bing.com"
         fi
-        SNI=$(openssl x509 -noout -subject -in /etc/hysteria/server.crt | sed -n 's/^.*CN=\(.*\)$/\1/p')
+
         LINK="hysteria2://${PASSWORD_ENCODED}@${SERVER_IP}:${PORT}?sni=${SNI}&alpn=h3&insecure=1#Hysteria"
+
         echo -e "${GREEN}------------------------------------------------------------------------${RESET}"
         echo -e "${GREEN}客户端链接 (可直接复制到客户端)：${RESET}"
         echo -e "${GREEN}$LINK${RESET}"
@@ -131,7 +136,7 @@ install_hysteria() {
 
     download_hysteria
     generate_cert "$H_DOMAIN"
-    write_config "$H_PORT" "$GENPASS"
+    write_config "$H_PORT" "$GENPASS" "$H_DOMAIN"
     write_init
 
     service hysteria start
@@ -199,7 +204,7 @@ change_password() {
 uninstall_hysteria() {
     stop_service
     rc-update del hysteria
-    rm -f "$HYSTERIA_BIN" "$CONFIG_FILE" "$INIT_SCRIPT" "$PASS_FILE"
+    rm -f "$HYSTERIA_BIN" "$CONFIG_FILE" "$INIT_SCRIPT" "$PASS_FILE" "$SNI_FILE"
     echo -e "${GREEN}Hysteria 已卸载${RESET}"
     read -p "按回车返回菜单..."
 }
