@@ -14,7 +14,7 @@ KEEPALIVE_SCRIPT="/usr/local/bin/xray_keepalive.sh"
 # ================== 安装依赖 ==================
 install_deps() {
     echo -e "${green}安装依赖...${re}"
-    apk add -q --no-cache curl wget unzip openssl bash openntpd >/dev/null 2>&1
+    apk add -q --no-cache bash curl wget unzip openssl iproute2 openntpd >/dev/null 2>&1
     ntpd -q -p pool.ntp.org >/dev/null 2>&1
 }
 
@@ -33,17 +33,22 @@ install_xray() {
     # 用户自定义端口和 SNI
     read -p "请输入端口 (默认 443): " input_port
     PORT=${input_port:-443}
-    read -p "请输入 SNI 域名 (默认 www.yahoo.com): " input_sni
+    read -p "请输入 SNI 域名 (必须可访问 HTTPS，默认 www.yahoo.com): " input_sni
     SNI=${input_sni:-www.yahoo.com}
 
     # 生成 UUID / Key / shortid
     UUID=$(cat /proc/sys/kernel/random/uuid)
     KEYS=$($XRAY_BIN x25519)
-    PrivateKey=$(echo "$KEYS" | awk '/Private/ {print $3}')
-    PublicKey=$(echo "$KEYS" | awk '/Public/ {print $3}')
+    PrivateKey=$(echo "$KEYS" | sed -n 's/.*Private Key: //p')
+    PublicKey=$(echo "$KEYS" | sed -n 's/.*Public Key: //p')
     shortid=$(openssl rand -hex 8)
 
-    # 生成配置文件
+    if [ -z "$PublicKey" ] || [ -z "$PrivateKey" ]; then
+        echo -e "${red}生成密钥失败，请检查 Xray 可执行文件${re}"
+        exit 1
+    fi
+
+    # 生成配置文件，监听 IPv4 + IPv6
     cat > $CONFIG_FILE <<EOF
 {
   "inbounds": [
@@ -85,7 +90,7 @@ EOF
 update_node() {
     UUID=$(sed -n 's/.*"id": *"\([^"]*\)".*/\1/p' $CONFIG_FILE | head -n1)
     PORT=$(sed -n 's/.*"port": *\([0-9]*\).*/\1/p' $CONFIG_FILE | head -n1)
-    PublicKey=$(sed -n 's/.*"publicKey": *"\([^"]*\)".*/\1/p' $CONFIG_FILE | head -n1)
+    PublicKey=$(sed -n 's/.*"privateKey": *"\([^"]*\)".*/\1/p' $CONFIG_FILE | head -n1)
     shortid=$(sed -n 's/.*"shortIds": *\["\([^"]*\)".*/\1/p' $CONFIG_FILE | head -n1)
     sni=$(sed -n 's/.*"serverNames": *\["\([^"]*\)".*/\1/p' $CONFIG_FILE | head -n1)
     IP=$(curl -s ipv4.ip.sb)
@@ -138,65 +143,11 @@ check_node() {
     cat $LIST_FILE
 }
 
-# ================== 更换端口 ==================
-change_port() {
-    if [ ! -f "$CONFIG_FILE" ]; then
-        echo -e "${red}未检测到配置文件，请先安装！${re}"
-        return
-    fi
-    read -p "请输入新端口: " new_port
-    sed -i "s/\"port\": [0-9]\+/\"port\": $new_port/" $CONFIG_FILE
-    restart_xray
-    check_node
-}
-
-# ================== 修改 SNI ==================
-change_sni() {
-    if [ ! -f "$CONFIG_FILE" ]; then
-        echo -e "${red}未检测到配置文件，请先安装！${re}"
-        return
-    fi
-    read -p "请输入新 SNI 域名: " new_sni
-    sed -i "s/\"serverNames\": \[\".*\"\]/\"serverNames\": [\"$new_sni\"]/" $CONFIG_FILE
-    restart_xray
-    check_node
-}
-
-# ================== 修改 UUID ==================
-change_uuid() {
-    if [ ! -f "$CONFIG_FILE" ]; then
-        echo -e "${red}未检测到配置文件，请先安装！${re}"
-        return
-    fi
-    NEW_UUID=$(cat /proc/sys/kernel/random/uuid)
-    sed -i "s/\"id\": \".*\"/\"id\": \"$NEW_UUID\"/" $CONFIG_FILE
-    restart_xray
-    check_node
-}
-
-# ================== 查看节点 ==================
-show_node() {
-    if [ -f "$LIST_FILE" ]; then
-        echo -e "${green}当前节点信息:${re}"
-        cat $LIST_FILE
-    else
-        echo -e "${red}未找到节点信息！${re}"
-    fi
-}
-
-# ================== 卸载 ==================
-uninstall() {
-    pkill -f "$XRAY_BIN"
-    pkill -f "$KEEPALIVE_SCRIPT"
-    rm -rf $XRAY_BIN $CONFIG_DIR $KEEPALIVE_SCRIPT
-    echo -e "${green}已卸载完成！${re}"
-}
-
 # ================== 菜单 ==================
 show_menu() {
     clear
     echo -e "${green}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${re}"
-    echo -e "${green}  VLESS Reality Alpine 管理脚本${re}"
+    echo -e "${green}  VLESS Reality Alpine 安装脚本${re}"
     echo -e "${green}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${re}"
     echo -e "${green}1) 安装并校验节点${re}"
     echo -e "${green}2) 更换端口${re}"
@@ -209,11 +160,11 @@ show_menu() {
     read -p "请输入选项: " num
     case "$num" in
         1) install_deps; install_xray ;;
-        2) change_port ;;
-        3) change_sni ;;
-        4) change_uuid ;;
-        5) show_node ;;
-        6) uninstall ;;
+        2) read -p "请输入新端口: " p; sed -i "s/\"port\": [0-9]\+/\"port\": $p/" $CONFIG_FILE; restart_xray; check_node ;;
+        3) read -p "请输入新 SNI: " s; sed -i "s/\"serverNames\": \[\".*\"\]/\"serverNames\": [\"$s\"]/" $CONFIG_FILE; restart_xray; check_node ;;
+        4) new_uuid=$(cat /proc/sys/kernel/random/uuid); sed -i "s/\"id\": \".*\"/\"id\": \"$new_uuid\"/" $CONFIG_FILE; restart_xray; check_node ;;
+        5) cat $LIST_FILE ;;
+        6) pkill -f "$XRAY_BIN"; pkill -f "$KEEPALIVE_SCRIPT"; rm -rf $XRAY_BIN $CONFIG_DIR $KEEPALIVE_SCRIPT; echo -e "${green}已卸载完成！${re}" ;;
         0) exit 0 ;;
         *) echo -e "${red}无效选项！${re}" ;;
     esac
