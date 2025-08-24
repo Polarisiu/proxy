@@ -133,24 +133,26 @@ send_telegram_notification() {
 
     get_public_ip
 
-    msg="🌐 *当前 DDNS 状态*\n\n"
+    msg="🌐 当前 DDNS 状态\n\n"
 
-    # 只显示存在的 IPv4 / IPv6
     [ -n "$Public_IPv4" ] && msg+="🔹 IPv4: \`${Public_IPv4}\`\n"
     [ -n "$Public_IPv6" ] && msg+="🔹 IPv6: \`${Public_IPv6}\`\n"
 
-    # 只显示存在的域名
-    [ -n "${Domains[*]}" ] && msg+="\n📄 *IPv4 域名*: \`${Domains[*]}\`\n"
-    [ -n "${Domainsv6[*]}" ] && msg+="📄 *IPv6 域名*: \`${Domainsv6[*]}\`\n"
+    if [ "${#Domains[@]}" -gt 0 ]; then
+    msg+="\n📄 IPv4 域名: ${Domains[*]}\n"
+    fi
+    if [ "${#Domainsv6[@]}" -gt 0 ]; then
+    msg+="📄 IPv6 域名: ${Domainsv6[*]}\n"
+    fi
 
-    # 发送消息
-    curl -s -X POST "https://api.telegram.org/bot$Telegram_Bot_Token/sendMessage" \
-        -d chat_id="$Telegram_Chat_ID" \
-        -d text="$msg" \
-        -d parse_mode="Markdown" >/dev/null 2>&1
-
-    echo -e "${Info}Telegram 通知已发送！"
+    # 发送
+    curl -s -X POST "https://api.telegram.org/bot${Telegram_Bot_Token}/sendMessage" \
+         -d chat_id="$Telegram_Chat_ID" \
+         -d parse_mode="Markdown" \
+         -d text="$msg"
 }
+
+
 
 
 # ================== 运行 DDNS ==================
