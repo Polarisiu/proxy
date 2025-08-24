@@ -93,13 +93,20 @@ EOF
     rc-update add hysteria
 }
 
+# ===================== 客户端链接 =====================
 generate_client_link() {
     if [ -f "$PASS_FILE" ]; then
         SERVER_IP=$(curl -s https://api.ipify.org)
         PORT=$(grep '^listen:' "$CONFIG_FILE" | sed 's/listen: *://')
         PASSWORD=$(cat "$PASS_FILE")
+        # URL encode 密码
+        if command -v python3 >/dev/null 2>&1; then
+            PASSWORD_ENCODED=$(python3 -c "import urllib.parse; print(urllib.parse.quote('''$PASSWORD'''))")
+        else
+            PASSWORD_ENCODED="$PASSWORD"
+        fi
         SNI=$(openssl x509 -noout -subject -in /etc/hysteria/server.crt | sed -n 's/^.*CN=\(.*\)$/\1/p')
-        LINK="hysteria2://${PASSWORD}@${SERVER_IP}:${PORT}?sni=${SNI}&alpn=h3&insecure=1#Hysteria"
+        LINK="hysteria2://${PASSWORD_ENCODED}@${SERVER_IP}:${PORT}?sni=${SNI}&alpn=h3&insecure=1#Hysteria"
         echo -e "${GREEN}------------------------------------------------------------------------${RESET}"
         echo -e "${GREEN}客户端链接 (可直接复制到客户端)：${RESET}"
         echo -e "${GREEN}$LINK${RESET}"
@@ -107,6 +114,7 @@ generate_client_link() {
     else
         echo -e "${RED}未找到密码文件，请确认 Hysteria 是否已安装${RESET}"
     fi
+    read -p "按回车返回菜单..."
 }
 
 # ===================== 功能函数 =====================
@@ -136,7 +144,6 @@ install_hysteria() {
     echo -e "${GREEN}服务已设置开机自启${RESET}"
 
     generate_client_link
-    read -p "按回车返回菜单..."
 }
 
 show_status() {
@@ -169,7 +176,6 @@ change_port() {
         restart_service
         echo -e "${GREEN}端口已修改为 $NEW_PORT 并重启服务${RESET}"
         generate_client_link
-        read -p "按回车返回菜单..."
     else
         echo -e "${RED}Hysteria 未安装${RESET}"
         read -p "按回车返回菜单..."
@@ -184,7 +190,6 @@ change_password() {
         restart_service
         echo -e "${GREEN}密码已修改并重启服务${RESET}"
         generate_client_link
-        read -p "按回车返回菜单..."
     else
         echo -e "${RED}Hysteria 未安装${RESET}"
         read -p "按回车返回菜单..."
