@@ -53,7 +53,7 @@ while true; do
             [[ -z $port ]] && port=$(random_port) && echo -e "${green}使用随机端口: $port${re}"
             port=$(check_port $port)
 
-            PORT=$port bash <(curl -Ls https://raw.githubusercontent.com/eooce/scripts/master/mtp.sh)
+            PORT=$port bash <(curl -Ls https://raw.githubusercontent.com/Polarisiu/proxy/main/mtp.sh)
             echo -e "${green}MTProto 安装完成！端口: $port${re}"
             sleep 1
             ;;
