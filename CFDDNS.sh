@@ -133,16 +133,21 @@ send_telegram_notification() {
 
     get_public_ip
 
-    msg="🌐 当前 DDNS 状态\n\n"
+    msg="🌐 当前 DDNS 状态
 
-    [ -n "$Public_IPv4" ] && msg+="🔹 IPv4: \`${Public_IPv4}\`\n"
-    [ -n "$Public_IPv6" ] && msg+="🔹 IPv6: \`${Public_IPv6}\`\n"
+"
+    [ -n "$Public_IPv4" ] && msg+="🔹 IPv4: \`${Public_IPv4}\`
+"
+    [ -n "$Public_IPv6" ] && msg+="🔹 IPv6: \`${Public_IPv6}\`
+"
 
     if [ "${#Domains[@]}" -gt 0 ]; then
-    msg+="\n📄 IPv4 域名: ${Domains[*]}\n"
+        msg+="📄 IPv4 域名: ${Domains[*]}
+"
     fi
     if [ "${#Domainsv6[@]}" -gt 0 ]; then
-    msg+="📄 IPv6 域名: ${Domainsv6[*]}\n"
+        msg+="📄 IPv6 域名: ${Domainsv6[*]}
+"
     fi
 
     # 发送
@@ -151,6 +156,7 @@ send_telegram_notification() {
          -d parse_mode="Markdown" \
          -d text="$msg"
 }
+
 
 
 
