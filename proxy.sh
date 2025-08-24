@@ -19,23 +19,23 @@ show_menu() {
     echo -e "${GREEN}[01] 老王 Sing-box 四合一${RESET}"
     echo -e "${GREEN}[02] 老王 Xray-2go 一键脚本${RESET}"
     echo -e "${GREEN}[03] mack-a 八合一脚本${RESET}"
-    echo -e "${GREEN}[04] Hysteria2${RESET}"
-    echo -e "${GREEN}[05] Tuic${RESET}"
-    echo -e "${GREEN}[06] Reality${RESET}"
-    echo -e "${GREEN}[07] Snell${RESET}"
-    echo -e "${GREEN}[08] MTProto${RESET}"
-    echo -e "${GREEN}[09] Anytls${RESET}"
-    echo -e "${GREEN}[10] 3XUI管理${RESET}"
-    echo -e "${GREEN}[11] MTProxy-Alpines${RESET}"
-    echo -e "${GREEN}[12] GOST管理${RESET}"
-    echo -e "${GREEN}[13] Realm管理${RESET}"
-    echo -e "${GREEN}[14] Alpine转发${RESET}"
-    echo -e "${GREEN}[15] FRP管理${RESET}"
-    echo -e "${GREEN}[16] SS+SNELL${RESET}"
-    echo -e "${GREEN}[17] Hysteria2(Alpines)${RESET}"
-    echo -e "${GREEN}[18] S-UI面板${RESET}"
-    echo -e "${GREEN}[19] H-UI面板${RESET}"
-    echo -e "${GREEN}[20] OpenVPN安装${RESET}"
+    echo -e "${GREEN}[04] Sing-box-yg${RESET}"
+    echo -e "${GREEN}[05] Hysteria2${RESET}"
+    echo -e "${GREEN}[06] Tuic${RESET}"
+    echo -e "${GREEN}[07] Reality${RESET}"
+    echo -e "${GREEN}[08] Snell${RESET}"
+    echo -e "${GREEN}[09] MTProto${RESET}"
+    echo -e "${GREEN}[10] Anytls${RESET}"
+    echo -e "${GREEN}[11] 3XUI管理${RESET}"
+    echo -e "${GREEN}[12] MTProxy(Docker)${RESET}"
+    echo -e "${GREEN}[13] GOST管理${RESET}"
+    echo -e "${GREEN}[14] Realm管理${RESET}"
+    echo -e "${GREEN}[15] Alpine转发${RESET}"
+    echo -e "${GREEN}[16] FRP管理${RESET}"
+    echo -e "${GREEN}[17] SS+SNELL${RESET}"
+    echo -e "${GREEN}[18] Hysteria2(Alpine)${RESET}"
+    echo -e "${GREEN}[19] S-UI面板${RESET}"
+    echo -e "${GREEN}[20] H-UI面板${RESET}"
     
     echo -e "${GREEN}----------------------------------------${RESET}"
     echo -e "${GREEN}[88] 更新脚本${RESET}"
@@ -49,23 +49,23 @@ install_protocol() {
         01|1) bash <(curl -Ls https://raw.githubusercontent.com/eooce/sing-box/main/sing-box.sh) ;;
         02|2) bash <(curl -Ls https://github.com/eooce/xray-2go/raw/main/xray_2go.sh) ;;
         03|3) wget -P /root -N --no-check-certificate "https://raw.githubusercontent.com/mack-a/v2ray-agent/master/install.sh" && chmod 700 /root/install.sh && /root/install.sh ;;
-        04|4) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/Hysteria2.sh) ;;
-        05|5) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/tuicv5.sh);;
-        06|6) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/Reality.sh) ;;
-        07|7) wget -O snell.sh --no-check-certificate https://git.io/Snell.sh && chmod +x snell.sh && ./snell.sh ;;
-        08|8) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/MTProto.sh) ;;
-        09|9) bash <(curl -sL https://raw.githubusercontent.com/kirito201711/One-click-installation-of-anytls/main/install_anytls.sh) ;;
-        10) bash <(curl -sL https://raw.githubusercontent.com/Polarisiu/proxy/main/3xui.sh) ;;
-        11) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/dkmop.sh) ;;
-        12) bash <(curl -sL https://raw.githubusercontent.com/Polarisiu/proxy/main/gost.sh) ;;
-        13) bash <(curl -sL https://raw.githubusercontent.com/Polarisiu/proxy/main/Realm.sh) ;;
-        14) curl -sS -O https://raw.githubusercontent.com/zyxinab/iptables-manager/main/iptables-manager.sh && chmod +x iptables-manager.sh && ./iptables-manager.sh ;;
-        15) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/FRP.sh) ;;
-        16) bash <(curl -L -s menu.jinqians.com) ;;
-        17) wget -N --no-check-certificate https://raw.githubusercontent.com/flame1ce/hysteria2-install/main/hysteria2-install-main/hy2/hysteria.sh && bash hysteria.sh ;;
-        18) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/s-ui.sh) ;;
-        19) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/H-UI.sh) ;;
-        20) install wget && wget https://git.io/vpn -O openvpn-install.sh && bash openvpn-install.sh ;;
+        04|4) bash <(curl -Ls https://raw.githubusercontent.com/yonggekkk/sing-box-yg/main/sb.sh) ;;
+        05|5) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/Hysteria2.sh) ;;
+        06|6) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/tuicv5.sh);;
+        07|7) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/Reality.sh) ;;
+        08|8) wget -O snell.sh --no-check-certificate https://git.io/Snell.sh && chmod +x snell.sh && ./snell.sh ;;
+        09|9) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/MTProto.sh) ;;
+        10) bash <(curl -sL https://raw.githubusercontent.com/kirito201711/One-click-installation-of-anytls/main/install_anytls.sh) ;;
+        11) bash <(curl -sL https://raw.githubusercontent.com/Polarisiu/proxy/main/3xui.sh) ;;
+        12) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/dkmop.sh) ;;
+        13) bash <(curl -sL https://raw.githubusercontent.com/Polarisiu/proxy/main/gost.sh) ;;
+        14) bash <(curl -sL https://raw.githubusercontent.com/Polarisiu/proxy/main/Realm.sh) ;;
+        15) curl -sS -O https://raw.githubusercontent.com/zyxinab/iptables-manager/main/iptables-manager.sh && chmod +x iptables-manager.sh && ./iptables-manager.sh ;;
+        16) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/FRP.sh) ;;
+        17) bash <(curl -L -s menu.jinqians.com) ;;
+        18) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu//proxy/main/aphy2.sh) ;;
+        19) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/s-ui.sh) ;;
+        20) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/H-UI.sh) ;;
         88|088)
             echo -e "${GREEN}正在更新脚本...${RESET}"
             if curl -fsSL "$SCRIPT_URL" -o "$SCRIPT_PATH"; then
