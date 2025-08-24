@@ -15,7 +15,6 @@ show_menu() {
     echo -e " ${yellow}4.${plain} 停止 3x-ui"
     echo -e " ${yellow}5.${plain} 重启 3x-ui"
     echo -e " ${yellow}6.${plain} 更新 geoip"
-    echo -e " ${yellow}7.${plain} 查看面板信息"
     echo -e " ${yellow}0.${plain} 退出"
     echo -e "${green}===============================================${plain}"
     echo
@@ -49,13 +48,8 @@ update_geoip() {
     curl -L -o geosite.dat https://github.com/v2fly/domain-list-community/releases/latest/download/dlc.dat
     echo -e "${green}更新完成，正在重启 x-ui...${plain}"
     x-ui restart
-}
+} 
 
-show_info() {
-    public_ip=$(curl -s ipv4.ip.sb || curl -s ifconfig.me)
-    echo -e "${green}面板地址:${plain} http://${public_ip}:54321"
-    echo -e "${yellow}请在首次安装时注意终端输出的用户名和密码${plain}"
-}
 
 
 while true; do
@@ -68,7 +62,6 @@ while true; do
         4) stop_3xui ;;
         5) restart_3xui ;;
         6) update_geoip ;;
-        7) show_info ;;
         0) exit 0 ;;
         *) echo -e "${red}无效选项，请重新输入${plain}" ;;
     esac
