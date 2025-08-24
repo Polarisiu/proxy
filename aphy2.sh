@@ -3,6 +3,15 @@
 # Hysteria v2 管理脚本（Alpine）
 # =========================
 
+# =========================
+# 颜色定义
+# =========================
+GREEN="\033[32m"
+RED="\033[31m"
+YELLOW="\033[33m"
+BLUE="\033[36m"
+RESET="\033[0m"
+
 HYSTERIA_BIN="/usr/local/bin/hysteria"
 CONFIG_FILE="/etc/hysteria/config.yaml"
 INIT_SCRIPT="/etc/init.d/hysteria"
@@ -27,8 +36,8 @@ download_hysteria() {
     local arch
     arch=$(detect_arch)
     if [ "$arch" = "unsupported" ]; then
-        echo "不支持的架构: $(uname -m)"
-        exit 1
+        echo -e "${RED}不支持的架构: $(uname -m)${RESET}"
+        return 1
     fi
     wget -O "$HYSTERIA_BIN" "https://download.hysteria.network/app/latest/hysteria-linux-$arch" --no-check-certificate
     chmod +x "$HYSTERIA_BIN"
@@ -87,16 +96,16 @@ EOF
 generate_client_link() {
     if [ -f "$PASS_FILE" ]; then
         SERVER_IP=$(curl -s https://api.ipify.org)
-        PORT=$(grep '^listen:' "$CONFIG_FILE" | awk -F: '{print $2}')
+        PORT=$(grep '^listen:' "$CONFIG_FILE" | sed 's/listen: *://')
         PASSWORD=$(cat "$PASS_FILE")
         SNI=$(openssl x509 -noout -subject -in /etc/hysteria/server.crt | sed -n 's/^.*CN=\(.*\)$/\1/p')
         LINK="hysteria2://${PASSWORD}@${SERVER_IP}:${PORT}?sni=${SNI}&alpn=h3&insecure=1#Hysteria"
-        echo "------------------------------------------------------------------------"
-        echo "客户端链接 (可直接复制到客户端)："
-        echo "$LINK"
-        echo "------------------------------------------------------------------------"
+        echo -e "${GREEN}------------------------------------------------------------------------${RESET}"
+        echo -e "${GREEN}客户端链接 (可直接复制到客户端)：${RESET}"
+        echo -e "${GREEN}$LINK${RESET}"
+        echo -e "${GREEN}------------------------------------------------------------------------${RESET}"
     else
-        echo "未找到密码文件，请确认 Hysteria 是否已安装"
+        echo -e "${RED}未找到密码文件，请确认 Hysteria 是否已安装${RESET}"
     fi
 }
 
@@ -119,32 +128,38 @@ install_hysteria() {
 
     service hysteria start
 
-    echo "------------------------------------------------------------------------"
-    echo "Hysteria v2 安装完成"
-    echo "监听端口: $H_PORT"
-    echo "密码已保存到: $PASS_FILE"
-    echo "SNI/域名: $H_DOMAIN"
-    echo "配置文件: $CONFIG_FILE"
-    echo "服务已设置开机自启"
-    echo "------------------------------------------------------------------------"
+    echo -e "${GREEN}Hysteria v2 安装完成${RESET}"
+    echo -e "${GREEN}监听端口: $H_PORT${RESET}"
+    echo -e "${GREEN}密码已保存到: $PASS_FILE${RESET}"
+    echo -e "${GREEN}SNI/域名: $H_DOMAIN${RESET}"
+    echo -e "${GREEN}配置文件: $CONFIG_FILE${RESET}"
+    echo -e "${GREEN}服务已设置开机自启${RESET}"
 
     generate_client_link
+    read -p "按回车返回菜单..."
 }
 
 show_status() {
     service hysteria status
+    read -p "按回车返回菜单..."
 }
 
 start_service() {
     service hysteria start
+    echo -e "${GREEN}服务已启动${RESET}"
+    read -p "按回车返回菜单..."
 }
 
 stop_service() {
     service hysteria stop
+    echo -e "${GREEN}服务已停止${RESET}"
+    read -p "按回车返回菜单..."
 }
 
 restart_service() {
     service hysteria restart
+    echo -e "${GREEN}服务已重启${RESET}"
+    read -p "按回车返回菜单..."
 }
 
 change_port() {
@@ -152,10 +167,12 @@ change_port() {
     if [ -f "$CONFIG_FILE" ]; then
         sed -i "s/^listen: .*/listen: :$NEW_PORT/" "$CONFIG_FILE"
         restart_service
-        echo "端口已修改为 $NEW_PORT 并重启服务"
+        echo -e "${GREEN}端口已修改为 $NEW_PORT 并重启服务${RESET}"
         generate_client_link
+        read -p "按回车返回菜单..."
     else
-        echo "Hysteria 未安装"
+        echo -e "${RED}Hysteria 未安装${RESET}"
+        read -p "按回车返回菜单..."
     fi
 }
 
@@ -165,10 +182,12 @@ change_password() {
     if [ -f "$CONFIG_FILE" ]; then
         sed -i "s/^  password: .*/  password: $NEW_PASS/" "$CONFIG_FILE"
         restart_service
-        echo "密码已修改并重启服务"
+        echo -e "${GREEN}密码已修改并重启服务${RESET}"
         generate_client_link
+        read -p "按回车返回菜单..."
     else
-        echo "Hysteria 未安装"
+        echo -e "${RED}Hysteria 未安装${RESET}"
+        read -p "按回车返回菜单..."
     fi
 }
 
@@ -176,22 +195,23 @@ uninstall_hysteria() {
     stop_service
     rc-update del hysteria
     rm -f "$HYSTERIA_BIN" "$CONFIG_FILE" "$INIT_SCRIPT" "$PASS_FILE"
-    echo "Hysteria 已卸载"
+    echo -e "${GREEN}Hysteria 已卸载${RESET}"
+    read -p "按回车返回菜单..."
 }
 
 # ===================== 菜单 =====================
 while true; do
-    echo "================= Hysteria v2 管理脚本 ================="
-    echo "1) 安装 Hysteria"
-    echo "2) 查看状态"
-    echo "3) 启动服务"
-    echo "4) 停止服务"
-    echo "5) 重启服务"
-    echo "6) 修改端口"
-    echo "7) 修改密码"
-    echo "8) 卸载 Hysteria"
-    echo "0) 退出"
-    echo "======================================================="
+    echo -e "${GREEN}================= Hysteria v2 管理脚本 =================${RESET}"
+    echo -e "${GREEN}1) 安装 Hysteria${RESET}"
+    echo -e "${GREEN}2) 查看状态${RESET}"
+    echo -e "${GREEN}3) 启动服务${RESET}"
+    echo -e "${GREEN}4) 停止服务${RESET}"
+    echo -e "${GREEN}5) 重启服务${RESET}"
+    echo -e "${GREEN}6) 修改端口${RESET}"
+    echo -e "${GREEN}7) 修改密码${RESET}"
+    echo -e "${GREEN}8) 卸载 Hysteria${RESET}"
+    echo -e "${GREEN}0) 退出${RESET}"
+    echo -e "${GREEN}=======================================================${RESET}"
     read -p "请输入选项: " choice
     case "$choice" in
         1) install_hysteria ;;
@@ -203,6 +223,6 @@ while true; do
         7) change_password ;;
         8) uninstall_hysteria ;;
         0) exit 0 ;;
-        *) echo "无效选项" ;;
+        *) echo -e "${RED}无效选项${RESET}" ;;
     esac
 done
