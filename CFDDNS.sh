@@ -191,30 +191,31 @@ show_status() {
 # ================== 显示菜单 ==================
 menu() {
     show_title
-    echo -e "${GREEN}0${NC}: 退出"
-    echo -e "${GREEN}1${NC}: 查看当前 DDNS 状态"
-    echo -e "${GREEN}2${NC}: 重启 DDNS"
-    echo -e "${GREEN}3${NC}: 停止 DDNS"
-    echo -e "${GREEN}4${NC}: 卸载 DDNS"
-    echo -e "${GREEN}5${NC}: 修改域名"
-    echo -e "${GREEN}6${NC}: 修改 Cloudflare API"
-    echo -e "${GREEN}7${NC}: 配置 Telegram 通知"
-    echo -e "${GREEN}8${NC}: 修改 DDNS 运行时间"
+    echo -e "${GREEN}1: 查看当前 DDNS 状态${NC}"
+    echo -e "${GREEN}2: 重启 DDNS${NC}"
+    echo -e "${GREEN}3: 停止 DDNS${NC}"
+    echo -e "${GREEN}4: 卸载 DDNS${NC}"
+    echo -e "${GREEN}5: 修改域名${NC}"
+    echo -e "${GREEN}6: 修改 Cloudflare API${NC}"
+    echo -e "${GREEN}7: 配置 Telegram 通知${NC}"
+    echo -e "${GREEN}8: 修改 DDNS 运行时间${NC}"
+    echo -e "${GREEN}0: 退出${NC}"
     echo
     read -rp "选择: " option
     case "$option" in
         0) exit 0 ;;
-        1) show_status ;;
-        2) run_ddns ;;
-        3) stop_ddns ;;
+        1) show_status ; read -rp "按回车返回菜单..." ;;
+        2) run_ddns ; read -rp "按回车返回菜单..." ;;
+        3) stop_ddns ; read -rp "按回车返回菜单..." ;;
         4)
             rm -rf /etc/DDNS /usr/bin/ddns
             systemctl disable --now ddns.service ddns.timer 2>/dev/null
             echo -e "${Info}DDNS 已卸载！"
+            read -rp "按回车返回菜单..."
             ;;
-        5) set_domain ;;
-        6) set_cloudflare_api ;;
-        7) set_telegram_settings ;;
+        5) set_domain ; read -rp "按回车返回菜单..." ;;
+        6) set_cloudflare_api ; read -rp "按回车返回菜单..." ;;
+        7) set_telegram_settings ; read -rp "按回车返回菜单..." ;;
         8)
             read -rp "请输入新的运行间隔（分钟）: " interval
             if grep -qiE "alpine" /etc/os-release; then
@@ -225,8 +226,9 @@ menu() {
                 systemctl enable --now ddns.timer
             fi
             echo -e "${Info}运行间隔已修改为 ${interval} 分钟"
+            read -rp "按回车返回菜单..."
             ;;
-        *) echo -e "${Error}无效选项" ;;
+        *) echo -e "${Error}无效选项" ; read -rp "按回车返回菜单..." ;;
     esac
 }
 
