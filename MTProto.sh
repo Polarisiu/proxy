@@ -55,7 +55,8 @@ while true; do
 
             PORT=$port bash <(curl -Ls https://raw.githubusercontent.com/Polarisiu/proxy/main/mtp.sh)
             echo -e "${green}MTProto 安装完成！端口: $port${re}"
-            sleep 1
+            echo
+            read -p "按回车返回菜单..."
             ;;
         2)
             clear
@@ -66,7 +67,8 @@ while true; do
             else
                 echo "取消卸载"
             fi
-            sleep 1
+            echo
+            read -p "按回车返回菜单..."
             ;;
         0)
             echo -e "${skyblue}已退出脚本${re}"
