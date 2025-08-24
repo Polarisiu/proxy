@@ -1,5 +1,5 @@
 #!/bin/bash
-# MTProto Proxy 管理脚本 for Docker (ellermister/mtproxy, 支持端口检测与修改配置)
+# MTProto Proxy 管理脚本 for Docker (ellermister/mtproxy)
 
 NAME="mtproxy"
 IMAGE="ellermister/mtproxy"
@@ -11,20 +11,31 @@ RESET="\033[0m"
 # 检测端口是否被占用
 function check_port() {
     local port=$1
-    if lsof -i :"$port" >/dev/null 2>&1; then
-        return 1
+    if command -v lsof >/dev/null 2>&1; then
+        lsof -i :"$port" >/dev/null 2>&1
+    elif command -v ss >/dev/null 2>&1; then
+        ss -tuln | grep -q ":$port "
     else
-        return 0
+        netstat -tuln 2>/dev/null | grep -q ":$port "
     fi
+    return $?
 }
 
 # 获取随机可用端口
 function get_random_port() {
     while true; do
         PORT=$(shuf -i 1025-65535 -n 1)
-        check_port $PORT && break
+        check_port $PORT || continue
+        echo $PORT
+        break
     done
-    echo $PORT
+}
+
+# 获取公网 IP
+function get_ip() {
+    curl -s https://api.ipify.org || \
+    curl -s ifconfig.me || \
+    curl -s icanhazip.com
 }
 
 function install_proxy() {
@@ -34,13 +45,18 @@ function install_proxy() {
         PORT=$(get_random_port)
         echo "随机选择未占用端口: $PORT"
     else
-        while ! check_port $PORT; do
+        while check_port $PORT; do
             echo "端口 $PORT 已被占用，请重新输入"
             read -p "端口: " PORT
         done
     fi
 
     read -p "请输入自定义密钥（32位十六进制, 留空随机生成）: " SECRET
+    if [[ -z "$SECRET" ]]; then
+        SECRET=$(openssl rand -hex 16)
+        echo "随机生成密钥: $SECRET"
+    fi
+
     read -p "IP 白名单选项 (OFF/IP/IPSEG, 默认 OFF): " IPWL
     IPWL=${IPWL:-OFF}
     read -p "请输入 domain (伪装域名, 默认 cloudflare.com): " DOMAIN
@@ -69,18 +85,12 @@ function install_proxy() {
     echo "⏳ 等待 5 秒让容器启动..."
     sleep 5
 
-    # 检查容器是否运行
     if ! docker ps --format '{{.Names}}' | grep -Eq "^${NAME}\$"; then
         echo "❌ 容器未启动，请查看 Docker 日志。"
         return
     fi
 
-    # 获取 secret（如果用户留空，镜像随机生成）
-    if [[ -z "$SECRET" ]]; then
-        SECRET=$(docker exec ${NAME} cat /data/secret 2>/dev/null)
-    fi
-
-    IP=$(curl -s ifconfig.me)
+    IP=$(get_ip)
 
     echo -e "\n${GREEN}✅ 安装完成！代理信息如下：${RESET}"
     echo "服务器 IP: $IP"
@@ -103,8 +113,8 @@ function show_logs() {
         echo "❌ 容器未运行，请先安装或启动代理。"
         return
     fi
-    echo -e "\n${GREEN}=== MTProto Proxy 日志 ===${RESET}\n"
-    docker logs -f ${NAME}
+    echo -e "\n${GREEN}=== MTProto Proxy 日志 (最近50行) ===${RESET}\n"
+    docker logs --tail=50 -f ${NAME}
 }
 
 function modify_config() {
@@ -115,7 +125,6 @@ function modify_config() {
 
     echo -e "\n${GREEN}=== 修改 MTProto Proxy 配置 ===${RESET}"
 
-    # 获取当前配置
     CUR_DOMAIN=$(docker inspect -f '{{range .Config.Env}}{{println .}}{{end}}' ${NAME} | grep domain | cut -d= -f2)
     CUR_SECRET=$(docker inspect -f '{{range .Config.Env}}{{println .}}{{end}}' ${NAME} | grep secret | cut -d= -f2)
     CUR_IPWL=$(docker inspect -f '{{range .Config.Env}}{{println .}}{{end}}' ${NAME} | grep ip_white_list | cut -d= -f2)
@@ -125,7 +134,7 @@ function modify_config() {
     if [[ -z "$PORT" ]]; then
         PORT=$CUR_PORT
     else
-        while ! check_port $PORT; do
+        while check_port $PORT; do
             echo "端口 $PORT 已被占用，请重新输入"
             read -p "端口: " PORT
         done
@@ -135,12 +144,17 @@ function modify_config() {
     DOMAIN=${DOMAIN:-$CUR_DOMAIN}
 
     read -p "请输入新的 secret (32位十六进制, 当前 $CUR_SECRET, 留空保持不变): " SECRET
-    SECRET=${SECRET:-$CUR_SECRET}
+    if [[ -z "$SECRET" ]]; then
+        SECRET=$CUR_SECRET
+        if [[ -z "$SECRET" ]]; then
+            SECRET=$(openssl rand -hex 16)
+            echo "随机生成新密钥: $SECRET"
+        fi
+    fi
 
     read -p "IP 白名单选项 (OFF/IP/IPSEG, 当前 $CUR_IPWL, 留空保持不变): " IPWL
     IPWL=${IPWL:-$CUR_IPWL}
 
-    # 删除旧容器并重启
     docker rm -f ${NAME}
     docker run -d --name ${NAME} \
         --restart=always \
@@ -157,7 +171,7 @@ function modify_config() {
 
 function menu() {
     echo -e "\n${GREEN}===== MTProto Proxy 管理脚本 =====${RESET}"
-    echo -e "${GREEN}1. 安装并启动代理 (自定义端口/密钥)${RESET}"
+    echo -e "${GREEN}1. 安装并启动代理${RESET}"
     echo -e "${GREEN}2. 卸载代理${RESET}"
     echo -e "${GREEN}3. 查看运行日志${RESET}"
     echo -e "${GREEN}4. 修改配置并重启容器${RESET}"
