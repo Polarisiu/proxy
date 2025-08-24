@@ -104,12 +104,12 @@ set_domain() {
         [ -n "$manual_ipv6" ] && sed -i "s|^Old_Public_IPv6=.*|Old_Public_IPv6=\"$manual_ipv6\"|" "$CONFIG_FILE"
     fi
 
-    read -rp "请输入 IPv4 域名（用逗号分隔）: " domains
+    read -rp "请输入 IPv4 域名（可留空跳过）: " domains
     domains="${domains//，/,}"
     IFS=',' read -ra Domains <<< "$domains"
     sed -i '/^Domains=/c\Domains=('"${Domains[*]}"')' "$CONFIG_FILE"
 
-    read -rp "请输入 IPv6 域名（用逗号分隔）: " domainsv6
+    read -rp "请输入 IPv6 域名（可留空跳过）: " domainsv6
     domainsv6="${domainsv6//，/,}"
     IFS=',' read -ra Domainsv6 <<< "$domainsv6"
     sed -i '/^Domainsv6=/c\Domainsv6=('"${Domainsv6[*]}"')' "$CONFIG_FILE"
