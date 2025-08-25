@@ -55,7 +55,7 @@ install_protocol() {
         07|7) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/Reality.sh) ;;
         08|8) wget -O snell.sh --no-check-certificate https://git.io/Snell.sh && chmod +x snell.sh && ./snell.sh ;;
         09|9) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/MTProto.sh) ;;
-        10) bash <(curl -sL https://raw.githubusercontent.com/kirito201711/One-click-installation-of-anytls/main/install_anytls.sh) ;;
+        10) bash <(curl -sL https://raw.githubusercontent.com/Polarisiu/proxy/main/anytls.sh) ;;
         11) bash <(curl -sL https://raw.githubusercontent.com/Polarisiu/proxy/main/3xui.sh) ;;
         12) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/dkmop.sh) ;;
         13) bash <(curl -sL https://raw.githubusercontent.com/Polarisiu/proxy/main/gost.sh) ;;
