@@ -11,20 +11,11 @@ CONTAINER_NAME="3x-ui"
 IMAGE_NAME="ghcr.io/mhsanaei/3x-ui:latest"
 DB_DIR="$PWD/db"
 CERT_DIR="$PWD/cert"
-PANEL_PORT=2053
+PANEL_PORT=2053  # 默认端口，可在安装时修改
 
 # ================== 函数 ==================
 
-install_3xui() {
-    echo -e "${GREEN}🚀 开始安装 3x-ui 官方镜像 ...${RESET}"
-
-    # 检查 root
-    if [ "$(id -u)" -ne 0 ]; then
-        echo -e "${RED}❌ 请用 root 用户运行脚本${RESET}"
-        exit 1
-    fi
-
-    # 检查 Docker
+check_docker() {
     if ! command -v docker &>/dev/null; then
         echo -e "${YELLOW}⚙️ 未检测到 Docker，正在安装...${RESET}"
         curl -fsSL https://get.docker.com | sh
@@ -33,6 +24,35 @@ install_3xui() {
     else
         echo -e "${GREEN}✅ Docker 已安装${RESET}"
     fi
+}
+
+open_firewall() {
+    # 自动放行防火墙端口
+    if command -v ufw &>/dev/null; then
+        sudo ufw allow ${PANEL_PORT}/tcp
+        sudo ufw reload
+    elif command -v firewall-cmd &>/dev/null; then
+        sudo firewall-cmd --zone=public --add-port=${PANEL_PORT}/tcp --permanent
+        sudo firewall-cmd --reload
+    fi
+}
+
+install_3xui() {
+    echo -ne "${GREEN}请输入面板端口（默认 ${PANEL_PORT}）：${RESET}"
+    read port_input
+    if [ -n "$port_input" ]; then
+        PANEL_PORT=$port_input
+    fi
+
+    echo -e "${GREEN}🚀 开始安装 3x-ui 官方镜像 ...${RESET}"
+
+    # 检查 root
+    if [ "$(id -u)" -ne 0 ]; then
+        echo -e "${RED}❌ 请用 root 用户运行脚本${RESET}"
+        exit 1
+    fi
+
+    check_docker
 
     # 创建目录
     mkdir -p "$DB_DIR" "$CERT_DIR"
@@ -44,7 +64,7 @@ install_3xui() {
         docker rm ${CONTAINER_NAME} >/dev/null 2>&1
     fi
 
-    # 运行新容器
+    # 运行容器（host 网络模式下仍可修改端口配置）
     echo -e "${GREEN}📦 拉取镜像并启动容器...${RESET}"
     docker run -itd \
       --name ${CONTAINER_NAME} \
@@ -53,10 +73,13 @@ install_3xui() {
       -e XRAY_VMESS_AEAD_FORCED=false \
       -v ${DB_DIR}:/etc/x-ui/ \
       -v ${CERT_DIR}:/root/cert/ \
+      -e XUI_PORT=${PANEL_PORT} \
       ${IMAGE_NAME}
 
+    open_firewall
+
     echo -e "${GREEN}✅ 安装完成！${RESET}"
-    echo -e "👉 管理面板: ${YELLOW}https://$(curl -s ifconfig.me):${PANEL_PORT}${RESET}"
+    echo -e "👉 管理面板: ${YELLOW}http://$(curl -s ifconfig.me):${PANEL_PORT}${RESET}"
     echo -e "👉 默认用户: ${YELLOW}admin${RESET} / 密码: ${YELLOW}admin${RESET}"
 }
 
