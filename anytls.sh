@@ -31,7 +31,6 @@ function install_dependencies() {
         fi
     done
 }
-
 install_dependencies
 
 # 自动检测架构
@@ -56,18 +55,24 @@ get_ip() {
     echo "$ip"
 }
 
+# 操作完成后按回车返回菜单
+pause_return() {
+    read -p "按回车键返回菜单..." dummy
+    show_menu
+}
+
 # 显示菜单
 show_menu() {
     clear
     echo -e "${GREEN}-------------------------------------${RESET}"
-    echo -e "${GREEN} anytls 服务管理脚本 (${BINARY_ARCH}架构) ${RESET}"
+    echo -e "${GREEN}   anytls安装脚本 ${RESET}"
     echo -e "${GREEN}-------------------------------------${RESET}"
     echo -e "${GREEN}1. 安装 anytls${RESET}"
     echo -e "${GREEN}2. 卸载 anytls${RESET}"
     echo -e "${GREEN}3. 修改端口${RESET}"
     echo -e "${GREEN}0. 退出${RESET}"
     echo -e "${GREEN}-------------------------------------${RESET}"
-    read -p "请输入选项 [0-3]: " choice
+    read -p "${GREEN}请输入选项 [0-3]: ${GREEN}" choice
     case $choice in
         1) install_anytls ;;
         2) uninstall_anytls ;;
@@ -82,22 +87,18 @@ install_anytls() {
     read -p "请输入监听端口 [默认8443]: " PORT
     PORT=${PORT:-8443}
 
-    # 下载 anytls
     echo "[1/5] 下载 anytls..."
-    wget "$DOWNLOAD_URL" -O "$ZIP_FILE" || { echo "下载失败！"; exit 1; }
+    wget "$DOWNLOAD_URL" -O "$ZIP_FILE" || { echo "下载失败！"; pause_return; return; }
 
-    # 解压
     echo "[2/5] 解压文件..."
-    unzip -o "$ZIP_FILE" -d "$BINARY_DIR" || { echo "解压失败！"; exit 1; }
+    unzip -o "$ZIP_FILE" -d "$BINARY_DIR" || { echo "解压失败！"; pause_return; return; }
     chmod +x "$BINARY_DIR/$BINARY_NAME"
     rm -f "$ZIP_FILE"
 
-    # 密码输入
     read -s -p "设置密码（留空随机生成）: " PASSWORD
     echo
     [ -z "$PASSWORD" ] && PASSWORD=$(openssl rand -base64 12)
 
-    # 配置 systemd
     echo "[3/5] 配置 systemd 服务..."
     cat > /etc/systemd/system/$SERVICE_NAME.service <<EOF
 [Unit]
@@ -114,7 +115,6 @@ Group=root
 WantedBy=multi-user.target
 EOF
 
-    # 启动服务
     echo "[4/5] 启动服务..."
     systemctl daemon-reload
     systemctl enable $SERVICE_NAME
@@ -122,28 +122,18 @@ EOF
 
     SERVER_IP=$(get_ip)
 
-    # 安装完成信息
     echo -e "\n${GREEN}√ 安装完成！${RESET}"
-    echo -e "${GREEN}√ 架构: ${BINARY_ARCH}${RESET}"
-    echo -e "${GREEN}√ 服务: $SERVICE_NAME${RESET}"
     echo -e "${GREEN}√ 端口: $PORT${RESET}"
     echo -e "${GREEN}√ 密码: $PASSWORD${RESET}"
-
-    echo -e "\n${YELLOW}管理命令:${RESET}"
-    echo "  启动: systemctl start $SERVICE_NAME"
-    echo "  停止: systemctl stop $SERVICE_NAME"
-    echo "  重启: systemctl restart $SERVICE_NAME"
-    echo "  状态: systemctl status $SERVICE_NAME"
-
-    echo -e "\n${CYAN}\033[1m〓 NekoBox连接信息 〓${RESET}"
     echo -e "\033[30;43m\033[1m anytls://$PASSWORD@$SERVER_IP:$PORT/?insecure=1 \033[0m"
-    echo -e "${YELLOW}\033[1m请妥善保管此连接信息！${RESET}"
+
+    pause_return
 }
 
 # 卸载
 uninstall_anytls() {
     read -p "确定要卸载 anytls 吗？(y/N): " confirm
-    [[ $confirm != [yY] ]] && echo "取消卸载" && return
+    [[ $confirm != [yY] ]] && echo "取消卸载" && pause_return && return
 
     echo "正在卸载 anytls..."
     systemctl stop $SERVICE_NAME 2>/dev/null
@@ -152,24 +142,26 @@ uninstall_anytls() {
     [ -f "/etc/systemd/system/$SERVICE_NAME.service" ] && rm -f "/etc/systemd/system/$SERVICE_NAME.service"
     systemctl daemon-reload
     echo -e "${GREEN}anytls 已完全卸载！${RESET}"
+
+    pause_return
 }
 
 # 修改端口
 modify_port() {
     if [ ! -f "/etc/systemd/system/$SERVICE_NAME.service" ]; then
         echo -e "${YELLOW}未检测到已安装的 anytls 服务${RESET}"
-        sleep 2
+        pause_return
         return
     fi
     read -p "请输入新端口: " NEW_PORT
-    [ -z "$NEW_PORT" ] && echo "端口不能为空" && return
+    [ -z "$NEW_PORT" ] && echo "端口不能为空" && pause_return && return
     sed -i -r "s/-l 0\.0\.0\.0:[0-9]+/-l 0.0.0.0:$NEW_PORT/" /etc/systemd/system/$SERVICE_NAME.service
     systemctl daemon-reload
     systemctl restart $SERVICE_NAME
     echo -e "${GREEN}端口已修改为 $NEW_PORT 并重启服务${RESET}"
+
+    pause_return
 }
 
-# 循环菜单
-while true; do
-    show_menu
-done
+# 启动菜单
+show_menu
