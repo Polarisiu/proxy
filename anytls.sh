@@ -72,7 +72,7 @@ show_menu() {
     echo -e "${GREEN}3. 修改端口${RESET}"
     echo -e "${GREEN}0. 退出${RESET}"
     echo -e "${GREEN}-------------------------------------${RESET}"
-    read -p "${GREEN}请输入选项 [0-3]: ${GREEN}" choice
+    read -p "请输入选项 [0-3]: " choice
     case $choice in
         1) install_anytls ;;
         2) uninstall_anytls ;;
