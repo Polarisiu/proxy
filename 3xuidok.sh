@@ -8,7 +8,7 @@ RESET="\033[0m"
 
 # ================== 基础信息 ==================
 CONTAINER_NAME="3x-ui"
-IMAGE_NAME="dapiaoliang666/3x-ui:2.5.0"
+IMAGE_NAME="ghcr.io/mhsanaei/3x-ui:latest"
 DB_DIR="$PWD/db"
 CERT_DIR="$PWD/cert"
 PANEL_PORT=2053
@@ -16,7 +16,7 @@ PANEL_PORT=2053
 # ================== 函数 ==================
 
 install_3xui() {
-    echo -e "${GREEN}🚀 开始安装 3x-ui 中文优化版 v2.5.0 ...${RESET}"
+    echo -e "${GREEN}🚀 开始安装 3x-ui 官方镜像 ...${RESET}"
 
     # 检查 root
     if [ "$(id -u)" -ne 0 ]; then
