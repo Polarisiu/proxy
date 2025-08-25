@@ -12,9 +12,10 @@ menu() {
     while true; do
         clear
         echo -e "${GREEN}=== 3XUI 安装菜单 ===${RESET}"
-        echo -e "${GREEN}1) 原版 3XUI 安装${RESET}"
-        echo -e "${GREEN}2) 中文版 3XUI 安装${RESET}"
-        echo -e "${GREEN}3) Alpine 版本 3XUI 安装${RESET}"
+        echo -e "${GREEN}1) 原版3XUI安装${RESET}"
+        echo -e "${GREEN}2) 中文版3XUI安装${RESET}"
+        echo -e "${GREEN}3) Alpine版本3XUI安装${RESET}"
+        echo -e "${GREEN}4) Docker3XUI安装${RESET}"
         echo -e "${GREEN}0) 退出${RESET}"
         echo
         read -p $'\033[32m请选择操作 (0-3): \033[0m' choice
@@ -33,6 +34,11 @@ menu() {
             3)
                 echo -e "${GREEN}正在安装 Alpine 版本 3XUI...${RESET}"
                 bash <(curl -sL https://raw.githubusercontent.com/Polarisiu/proxy/main/3xuiAlpine.sh)
+                pause
+                ;;
+            4)
+                echo -e "${GREEN}正在安装Docker 版本 3XUI...${RESET}"
+                bash <(curl -sL https://raw.githubusercontent.com/Polarisiu/proxy/main/3xuidok.sh)
                 pause
                 ;;
             0)
