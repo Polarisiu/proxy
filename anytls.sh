@@ -2,7 +2,6 @@
 
 # anytls 安装/卸载管理脚本
 # 功能：安装 anytls、修改端口或卸载
-# 支持架构：amd64 (x86_64)、arm64 (aarch64)、armv7 (armv7l)
 
 # 颜色定义
 GREEN="\033[32m"
@@ -22,7 +21,6 @@ fi
 
 # 安装必要工具
 function install_dependencies() {
-    echo "[初始化] 安装必要依赖（wget, curl, unzip, openssl）..."
     apt update -y >/dev/null 2>&1
     for dep in wget curl unzip openssl; do
         if ! command -v $dep &>/dev/null; then
@@ -125,7 +123,7 @@ EOF
     echo -e "\n${GREEN}√ 安装完成！${RESET}"
     echo -e "${GREEN}√ 端口: $PORT${RESET}"
     echo -e "${GREEN}√ 密码: $PASSWORD${RESET}"
-    echo -e "\033[30;43m\033[1m anytls://$PASSWORD@$SERVER_IP:$PORT/?insecure=1 \033[0m"
+    echo -e "${GREEN}anytls://$PASSWORD@$SERVER_IP:$PORT/?insecure=1${GREEN}"
 
     pause_return
 }
