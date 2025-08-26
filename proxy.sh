@@ -36,7 +36,7 @@ show_menu() {
     echo -e "${GREEN}[18] Hysteria2(Alpine)${RESET}"
     echo -e "${GREEN}[19] S-UI面板${RESET}"
     echo -e "${GREEN}[20] H-UI面板${RESET}"
-    
+    echo -e "${GREEN}[21] NodePass面板${RESET}"
     echo -e "${GREEN}----------------------------------------${RESET}"
     echo -e "${GREEN}[88] 更新脚本${RESET}"
     echo -e "${GREEN}[99] 卸载脚本${RESET}"
@@ -66,6 +66,7 @@ install_protocol() {
         18) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu//proxy/main/aphy2.sh) ;;
         19) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/s-ui.sh) ;;
         20) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/H-UI.sh) ;;
+        21) bash <(curl -sL https://raw.githubusercontent.com/Polarisiu/proxy/main/NodePass.sh) ;;
         88|088)
             echo -e "${GREEN}正在更新脚本...${RESET}"
             if curl -fsSL "$SCRIPT_URL" -o "$SCRIPT_PATH"; then
