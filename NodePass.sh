@@ -51,7 +51,12 @@ deploy() {
 
     echo -e "${GREEN}✅ 部署完成！获取管理员账户信息中...${RESET}"
     show_init_info $PORT
+
+    # 显示访问地址
+    LOCAL_IP=$(hostname -I | awk '{print $1}')
+    echo -e "${GREEN}🌐 访问地址: http://$LOCAL_IP:$PORT${RESET}"
 }
+
 
 show_init_info() {
     PORT=${1:-$DEFAULT_PORT}
