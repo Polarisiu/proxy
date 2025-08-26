@@ -1,8 +1,8 @@
 #!/bin/bash
 # ========================================
-# 代理协议一键菜单
+# 代理协议一键菜单（首次运行自动执行，支持 W/w 快捷启动）
 # 作者: 整合版
-# 特点: 一键更新/卸载
+# 特点: 一键更新/卸载/快捷启动
 # ========================================
 
 RED="\033[31m"
@@ -10,8 +10,35 @@ GREEN="\033[32m"
 RESET="\033[0m"
 
 SCRIPT_PATH="$HOME/proxy.sh"
-SCRIPT_URL="https://raw.githubusercontent.com/Polarisiu/proxy/main/proxy.sh"  # 请替换成你自己的脚本地址
+SCRIPT_URL="https://raw.githubusercontent.com/Polarisiu/proxy/main/proxy.sh"
+SHELL_RC="$HOME/.bashrc"  # 如果用 zsh，可改成 .zshrc
 
+# 第一次运行，自动下载菜单脚本
+if [[ ! -f "$SCRIPT_PATH" ]]; then
+    echo -e "${GREEN}菜单脚本不存在，正在下载...${RESET}"
+    if curl -fsSL "$SCRIPT_URL" -o "$SCRIPT_PATH"; then
+        chmod +x "$SCRIPT_PATH"
+        echo -e "${GREEN}下载完成: $SCRIPT_PATH${RESET}"
+    else
+        echo -e "${RED}下载失败，请检查网络或脚本地址！${RESET}"
+        exit 1
+    fi
+fi
+
+# 添加 W/w 快捷启动
+if ! grep -q "alias W='bash \$HOME/proxy.sh'" "$SHELL_RC"; then
+    echo -e "${GREEN}添加快捷键 W/w 到 $SHELL_RC${RESET}"
+    echo "alias W='bash \$HOME/proxy.sh'" >> "$SHELL_RC"
+    echo "alias w='bash \$HOME/proxy.sh'" >> "$SHELL_RC"
+    echo -e "${GREEN}快捷键已添加，执行 'source $SHELL_RC' 或重新登录生效${RESET}"
+fi
+
+# 如果是首次运行，自动启动菜单
+if [[ "$1" != "noauto" ]]; then
+    exec bash "$SCRIPT_PATH" noauto
+fi
+
+# ================= 菜单逻辑 =================
 show_menu() {
     clear
     echo -e "${GREEN}========= 代理协议一键安装菜单 =========${RESET}"
@@ -41,6 +68,7 @@ show_menu() {
     echo -e "${GREEN}[88] 更新脚本${RESET}"
     echo -e "${GREEN}[99] 卸载脚本${RESET}"
     echo -e "${GREEN}[0]  退出脚本${RESET}"
+    echo -e "${GREEN}快捷启动菜单: W 或 w${RESET}"
     echo -e "${GREEN}========================================${RESET}"
 }
 
@@ -51,7 +79,7 @@ install_protocol() {
         03|3) wget -P /root -N --no-check-certificate "https://raw.githubusercontent.com/mack-a/v2ray-agent/master/install.sh" && chmod 700 /root/install.sh && /root/install.sh ;;
         04|4) bash <(curl -Ls https://raw.githubusercontent.com/yonggekkk/sing-box-yg/main/sb.sh) ;;
         05|5) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/Hysteria2.sh) ;;
-        06|6) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/tuicv5.sh);;
+        06|6) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/tuicv5.sh) ;;
         07|7) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/Reality.sh) ;;
         08|8) wget -O snell.sh --no-check-certificate https://git.io/Snell.sh && chmod +x snell.sh && ./snell.sh ;;
         09|9) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/MTProto.sh) ;;
@@ -72,15 +100,17 @@ install_protocol() {
             if curl -fsSL "$SCRIPT_URL" -o "$SCRIPT_PATH"; then
                 chmod +x "$SCRIPT_PATH"
                 echo -e "${GREEN}脚本已更新完成，正在重新加载...${RESET}"
-                exec "$SCRIPT_PATH"
+                exec "$SCRIPT_PATH" noauto
             else
                 echo -e "${RED}更新失败，请检查网络或脚本地址！${RESET}"
             fi
             ;;
         99|099)
-            echo -e "${RED}正在卸载脚本...${RESET}"
+            echo -e "${RED}正在卸载脚本和快捷键...${RESET}"
             rm -f "$SCRIPT_PATH"
-            echo -e "${RED}脚本已卸载完成.${RESET}"
+            sed -i "/alias W='bash \$HOME\/proxy.sh'/d" "$SHELL_RC"
+            sed -i "/alias w='bash \$HOME\/proxy.sh'/d" "$SHELL_RC"
+            echo -e "${RED}卸载完成，请重新登录使快捷键失效${RESET}"
             exit 0
             ;;
         0)  echo -e "${GREEN}已退出脚本.${RESET}"; exit 0 ;;
@@ -91,8 +121,15 @@ install_protocol() {
 # 主循环
 while true; do
     show_menu
-    read -p "请输入编号: " choice
-    choice=$(echo "$choice" | tr -d '[:space:]')  # 去掉空格
+    read -p "请输入编号或快捷键: " choice
+    choice=$(echo "$choice" | tr -d '[:space:]')
+
+    # W/w 快捷启动菜单
+    if [[ "$choice" == "W" || "$choice" == "w" ]]; then
+        bash "$SCRIPT_PATH" noauto
+        continue
+    fi
+
     install_protocol "$choice"
     echo -e "\n${GREEN}按 Enter 返回菜单...${RESET}"
     read
