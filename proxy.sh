@@ -59,6 +59,9 @@ show_menu() {
     echo -e "${GREEN}[19] S-UI面板${RESET}"
     echo -e "${GREEN}[20] H-UI面板${RESET}"
     echo -e "${GREEN}[21] NodePass面板${RESET}"
+    echo -e "${GREEN}[22] 哆啦A梦转发面板${RESET}"
+    echo -e "${GREEN}[23] 极光面板${RESET}"
+    echo -e "${GREEN}[24] BBR管理${RESET}"
     echo -e "${GREEN}----------------------------------------${RESET}"
     echo -e "${GREEN}[88] 更新脚本${RESET}"
     echo -e "${GREEN}[99] 卸载脚本${RESET}"
@@ -89,6 +92,9 @@ install_protocol() {
         19) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/s-ui.sh) ;;
         20) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/H-UI.sh) ;;
         21) bash <(curl -sL https://raw.githubusercontent.com/Polarisiu/proxy/main/NodePass.sh) ;;
+        22) curl -L https://raw.githubusercontent.com/bqlpfy/forward-panel/refs/heads/main/panel_install.sh -o panel_install.sh && chmod +x panel_install.sh && ./panel_install.sh ;;
+        23) bash <(curl -fsSL https://raw.githubusercontent.com/Aurora-Admin-Panel/deploy/main/install.sh) ;;
+        24) wget --no-check-certificate -O tcpx.sh https://raw.githubusercontent.com/ylx2016/Linux-NetSpeed/master/tcpx.sh && chmod +x tcpx.sh && ./tcpx.sh ;;
         88|088)
             echo -e "${GREEN}正在更新脚本...${RESET}"
             curl -fsSL "$SCRIPT_URL" -o "$SCRIPT_PATH"
