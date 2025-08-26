@@ -52,11 +52,13 @@ deploy() {
     echo -e "${GREEN}✅ 部署完成！获取管理员账户信息中...${RESET}"
     show_init_info $PORT
 
-    # 显示访问地址
-    LOCAL_IP=$(hostname -I | awk '{print $1}')
-    echo -e "${GREEN}🌐 访问地址: http://$LOCAL_IP:$PORT${RESET}"
+    # 显示访问地址（自动检测公网 IP）
+    PUBLIC_IP=$(curl -s https://api.ipify.org)
+    if [ -z "$PUBLIC_IP" ]; then
+        PUBLIC_IP="无法获取公网 IP，请手动访问 VPS"
+    fi
+    echo -e "${GREEN}🌐 访问地址: http://$PUBLIC_IP:$PORT${RESET}"
 }
-
 
 show_init_info() {
     PORT=${1:-$DEFAULT_PORT}
@@ -126,4 +128,5 @@ menu() {
     done
 }
 
+# ================== 脚本入口 ==================
 menu
