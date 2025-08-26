@@ -1,6 +1,6 @@
 #!/bin/bash
 # ========================================
-# 代理协议一键菜单（首次运行显示快捷键提示）
+# 代理协议一键菜单（F/f 快捷键，首次运行提示）
 # ========================================
 
 RED="\033[31m"
@@ -12,11 +12,10 @@ SCRIPT_URL="https://raw.githubusercontent.com/Polarisiu/proxy/main/proxy.sh"
 SHELL_RC="$HOME/.bashrc"
 FIRST_RUN_FLAG="$HOME/.proxy_first_run"
 
-IS_FIRST_RUN=false
+# 首次运行处理：下载脚本 + 添加快捷键
 if [[ ! -f "$FIRST_RUN_FLAG" ]]; then
-    IS_FIRST_RUN=true
 
-    # 下载菜单脚本
+    # 下载菜单脚本（如果不存在）
     if [[ ! -f "$SCRIPT_PATH" ]]; then
         echo -e "${GREEN}菜单脚本不存在，正在下载...${RESET}"
         curl -fsSL "$SCRIPT_URL" -o "$SCRIPT_PATH"
@@ -24,13 +23,14 @@ if [[ ! -f "$FIRST_RUN_FLAG" ]]; then
         echo -e "${GREEN}下载完成: $SCRIPT_PATH${RESET}"
     fi
 
-    # 添加 W/w 快捷键
-    if ! grep -q "alias W='bash \$HOME/proxy.sh'" "$SHELL_RC"; then
-        echo "alias W='bash \$HOME/proxy.sh'" >> "$SHELL_RC"
-        echo "alias w='bash \$HOME/proxy.sh'" >> "$SHELL_RC"
-        echo -e "${GREEN}快捷键 W/w 已添加，执行 'source $SHELL_RC' 或重新登录生效${RESET}"
+    # 添加 F/f 快捷键
+    if ! grep -q "alias F='bash \$HOME/proxy.sh'" "$SHELL_RC"; then
+        echo "alias F='bash \$HOME/proxy.sh'" >> "$SHELL_RC"
+        echo "alias f='bash \$HOME/proxy.sh'" >> "$SHELL_RC"
+        echo -e "${GREEN}快捷键已添加，执行 'source $SHELL_RC' 或重新登录生效${RESET}"
     fi
 
+    # 创建首次运行标记
     touch "$FIRST_RUN_FLAG"
 fi
 
@@ -78,7 +78,7 @@ install_protocol() {
         08|8) wget -O snell.sh --no-check-certificate https://git.io/Snell.sh && chmod +x snell.sh && ./snell.sh ;;
         09|9) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/MTProto.sh) ;;
         10) bash <(curl -sL https://raw.githubusercontent.com/Polarisiu/proxy/main/anytls.sh) ;;
-        11|3xui) bash <(curl -sL https://raw.githubusercontent.com/Polarisiu/proxy/main/3xui.sh) ;;
+        11) bash <(curl -sL https://raw.githubusercontent.com/Polarisiu/proxy/main/3xui.sh) ;;
         12) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/dkmop.sh) ;;
         13) bash <(curl -sL https://raw.githubusercontent.com/Polarisiu/proxy/main/gost.sh) ;;
         14) bash <(curl -sL https://raw.githubusercontent.com/Polarisiu/proxy/main/Realm.sh) ;;
@@ -98,8 +98,8 @@ install_protocol() {
         99|099)
             echo -e "${RED}正在卸载脚本和快捷键...${RESET}"
             rm -f "$SCRIPT_PATH"
-            sed -i "/alias W='bash \$HOME\/proxy.sh'/d" "$SHELL_RC"
-            sed -i "/alias w='bash \$HOME\/proxy.sh'/d" "$SHELL_RC"
+            sed -i "/alias F='bash \$HOME\/proxy.sh'/d" "$SHELL_RC"
+            sed -i "/alias f='bash \$HOME\/proxy.sh'/d" "$SHELL_RC"
             rm -f "$FIRST_RUN_FLAG"
             echo -e "${RED}卸载完成，请重新登录使快捷键失效${RESET}"
             exit 0
