@@ -16,7 +16,7 @@ ADMIN_INFO_FILE="./admin_info.txt"
 
 # ================== 功能函数 ==================
 deploy() {
-    read -p "$(echo -e ${GREEN}请输入要映射的端口 (默认 $DEFAULT_PORT): ${RESET})" input_port
+    read -p "${GREEN}请输入要映射的端口 (默认 $DEFAULT_PORT): ${RESET}" input_port
     PORT=${input_port:-$DEFAULT_PORT}
 
     echo -e "${GREEN}🚀 拉取最新镜像...${RESET}"
@@ -30,8 +30,8 @@ deploy() {
     docker run -d \
       --name $CONTAINER \
       -p $PORT:3000 \
-      -v $(pwd)/logs:/app/logs \
-      -v $(pwd)/public:/app/public \
+      -v "$(pwd)/logs:/app/logs" \
+      -v "$(pwd)/public:/app/public" \
       $IMAGE \
       ./nodepassdash --port 3000
 
@@ -46,7 +46,7 @@ show_init_info() {
     echo -e "${GREEN}$info${RESET}"
     echo "-------------------------------------------------"
     echo -e "${GREEN}⚠️ 管理员账户信息已保存到 ${ADMIN_INFO_FILE}${RESET}"
-    echo -e "${GREEN}端口号: $PORT\n$info" > $ADMIN_INFO_FILE
+    echo -e "${GREEN}端口号: $PORT\n$info${RESET}" > $ADMIN_INFO_FILE
 }
 
 reset_password() {
@@ -89,7 +89,7 @@ menu() {
         echo -e "${GREEN}7) 删除容器${RESET}"
         echo -e "${GREEN}0) 退出${RESET}"
         echo -e "${GREEN}========================================================${RESET}"
-        read -p "请选择操作 [0-7]: " choice
+        read -p "${GREEN}请选择操作 [0-7]: ${RESET}" choice
         case $choice in
             1) deploy ;;
             2) show_init_info ;;
