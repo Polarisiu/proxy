@@ -121,6 +121,6 @@ while true; do
     read -p "请输入编号: " choice
     choice=$(echo "$choice" | tr -d '[:space:]')
     install_protocol "$choice"
-    echo -e "\n${GREEN}按 Enter 返回菜单...${RESET}"
+    echo -e "\n${GREEN}按回车返回菜单...${RESET}"
     read
 done
