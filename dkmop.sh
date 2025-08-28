@@ -6,6 +6,7 @@ IMAGE="ellermister/mtproxy"
 VOLUME="mtproxy-data"
 
 GREEN="\033[32m"
+YELLOW="\033[33m"
 RESET="\033[0m"
 
 # 检测端口是否被占用
@@ -18,16 +19,19 @@ function check_port() {
     else
         netstat -tuln 2>/dev/null | grep -q ":$port "
     fi
-    return $?
+    # 返回 0 表示可用，1 表示被占用
+    if [[ $? -eq 0 ]]; then
+        return 1
+    else
+        return 0
+    fi
 }
 
 # 获取随机可用端口
 function get_random_port() {
     while true; do
         PORT=$(shuf -i 1025-65535 -n 1)
-        check_port $PORT || continue
-        echo $PORT
-        break
+        check_port $PORT && { echo $PORT; break; }
     done
 }
 
@@ -46,7 +50,7 @@ function install_proxy() {
         PORT=$(get_random_port)
         echo "随机选择未占用端口: $PORT"
     else
-        while check_port $PORT; do
+        while ! check_port $PORT; do
             echo "端口 $PORT 已被占用，请重新输入"
             read -p "端口: " PORT
         done
@@ -85,7 +89,7 @@ function install_proxy() {
     IP=$(get_ip)
 
     # 提取 Secret
-    SECRET=$(docker logs ${NAME} 2>&1 | grep "MTProxy Secret" | awk '{print $NF}' | tail -n1)
+    SECRET=$(docker logs --tail 50 ${NAME} 2>&1 | grep "MTProxy Secret" | awk '{print $NF}' | tail -n1)
 
     echo -e "\n${GREEN}✅ 安装完成！代理信息如下：${RESET}"
     echo "服务器 IP: $IP"
@@ -146,10 +150,9 @@ function modify_proxy() {
     fi
 
     IP=$(get_ip)
-    # 提取 Secret
-    SECRET=$(docker logs ${NAME} 2>&1 | grep "MTProxy Secret" | awk '{print $NF}' | tail -n1)
+    SECRET=$(docker logs --tail 50 ${NAME} 2>&1 | grep "MTProxy Secret:" | tail -n1 | sed 's/.*MTProxy Secret: //g' | tr -d '[:space:]')
 
-    echo -e "\n${GREEN}✅ 安装完成！代理信息如下：${RESET}"
+    echo -e "\n${GREEN}✅ 配置修改完成！代理信息如下：${RESET}"
     echo "服务器 IP: $IP"
     echo "端口     : $PORT"
     echo "Secret   : $SECRET"
@@ -157,7 +160,6 @@ function modify_proxy() {
     echo
     echo "👉 Telegram 链接："
     echo "tg://proxy?server=$IP&port=$PORT&secret=$SECRET"
-
 }
 
 function menu() {
@@ -173,7 +175,7 @@ function menu() {
         1) install_proxy ;;
         2) uninstall_proxy ;;
         3) show_logs ;;
-        4) modify_config ;;
+        4) modify_proxy ;;
         0) exit 0 ;;
         *) echo "❌ 无效输入" ;;
     esac
