@@ -63,6 +63,7 @@ show_menu() {
     echo -e "${GREEN}[22] 哆啦A梦转发面板${RESET}"
     echo -e "${GREEN}[23] 极光面板${RESET}"
     echo -e "${GREEN}[24] BBR管理${RESET}"
+    echo -e "${GREEN}[25] Socks5${RESET}"
     echo -e "${GREEN}----------------------------------------${RESET}"
     echo -e "${GREEN}[88] 更新脚本${RESET}"
     echo -e "${GREEN}[99] 卸载脚本${RESET}"
@@ -96,6 +97,7 @@ install_protocol() {
         22) bash <(curl -sL https://raw.githubusercontent.com/Polarisiu/proxy/main/dlam.sh) ;;
         23) bash <(curl -fsSL https://raw.githubusercontent.com/Aurora-Admin-Panel/deploy/main/install.sh) ;;
         24) wget --no-check-certificate -O tcpx.sh https://raw.githubusercontent.com/ylx2016/Linux-NetSpeed/master/tcpx.sh && chmod +x tcpx.sh && ./tcpx.sh ;;
+        25) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/socks5.sh) ;;
         88|088)
             echo -e "${GREEN}正在更新脚本...${RESET}"
             curl -fsSL "$SCRIPT_URL" -o "$SCRIPT_PATH"
