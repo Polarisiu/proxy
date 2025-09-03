@@ -9,14 +9,14 @@ plain="\033[0m"
 show_menu() {
     clear
     echo -e "${green}=========== 3x-ui 管理面板 (Alpine) ===========${plain}"
-    echo -e " ${yellow}  首次安装需重启"
-    echo -e " ${yellow}1.${plain} 安装 3x-ui"
-    echo -e " ${yellow}2.${plain} 卸载 3x-ui"
-    echo -e " ${yellow}3.${plain} 启动 3x-ui"
-    echo -e " ${yellow}4.${plain} 停止 3x-ui"
-    echo -e " ${yellow}5.${plain} 重启 3x-ui"
-    echo -e " ${yellow}6.${plain} 更新 geoip"
-    echo -e " ${yellow}0.${plain} 退出"
+    echo -e " ${yellow}  首次安装需重启${plain}"
+    echo -e " ${yellow}1.安装 3x-ui${plain}"
+    echo -e " ${yellow}2.卸载 3x-ui${plain}"
+    echo -e " ${yellow}3.启动 3x-ui${plain}"
+    echo -e " ${yellow}4.停止 3x-ui${plain}"
+    echo -e " ${yellow}5.重启 3x-ui${plain}"
+    echo -e " ${yellow}6.更新 geoip${plain}"
+    echo -e " ${yellow}0.退出${plain}"
     echo -e "${green}===============================================${plain}"
     echo
 }
