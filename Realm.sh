@@ -15,12 +15,12 @@ menu() {
     case $choice in
         1)
             echo -e "${GREEN}正在安装国外机 EZRealm...${RESET}"
-            wget -N https://raw.githubusercontent.com/shiyi11yi/EZRealm/main/realm.sh && chmod +x realm.sh && ./realm.sh
+            wget -N https://raw.githubusercontent.com/qqrrooty/EZrealm/main/realm.sh && chmod +x realm.sh && ./realm.sh
             pause
             ;;
         2)
             echo -e "${GREEN}正在安装国内机 EZRealm...${RESET}"
-            wget -N https://raw.githubusercontent.com/shiyi11yi/EZRealm/main/CN/realm.sh && chmod +x realm.sh && ./realm.sh
+            wget -N https://raw.githubusercontent.com/qqrrooty/EZrealm/main/CN/realm.sh && chmod +x realm.sh && ./realm.sh
             pause
             ;;
         0)
