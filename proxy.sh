@@ -28,7 +28,7 @@ if [[ ! -f "$FIRST_RUN_FLAG" ]]; then
     if ! grep -q "alias F='bash \$HOME/proxy.sh'" "$SHELL_RC"; then
         echo "alias F='bash \$HOME/proxy.sh'" >> "$SHELL_RC"
         echo "alias f='bash \$HOME/proxy.sh'" >> "$SHELL_RC"
-        echo -e "${RED} F/f 快捷键已添加,重新登录生效${RESET}"
+        echo -e "${RED} F/f 快捷键已添加,重新登录或输入source ~/.bashrc生效${RESET}"
     fi
 
     # 创建首次运行标记
