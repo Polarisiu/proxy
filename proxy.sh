@@ -26,7 +26,7 @@ if [ ! -f "$FIRST_RUN_FLAG" ]; then
     chmod +x "$SCRIPT_PATH"
     ln -sf "$SCRIPT_PATH" "$BIN_LINK_DIR/f"
     ln -sf "$SCRIPT_PATH" "$BIN_LINK_DIR/F"
-    echo -e "${GREEN}✅ 安装完成！现在可以使用 ${YELLOW}f${RESET} 或 ${YELLOW}F${RESET} 命令快速启动菜单${RESET}"
+    echo -e "${GREEN}✅ 安装完成！现在可以使用 ${YELLOW}f${RESET} ${GREEN}或${RESET} ${YELLOW}F${RESET} ${GREEN}命令快速启动菜单${RESET}"
     touch "$FIRST_RUN_FLAG"
 fi
 
@@ -106,11 +106,11 @@ install_protocol() {
             chmod +x "$SCRIPT_PATH"
             ln -sf "$SCRIPT_PATH" "$BIN_LINK_DIR/f"
             ln -sf "$SCRIPT_PATH" "$BIN_LINK_DIR/F"
-            echo -e "${GREEN}✅ 已更新并刷新快捷键${RESET}"
+            echo -e "${GREEN}✅ 更新完成! 可直接使用 F/f 启动脚本${RESET}"
             exec "$SCRIPT_PATH"
             ;;
         99|099)
-            echo -e "${RED}卸载脚本及快捷键 f/F${RESET}"
+            echo -e "${YELLOW}正在卸载脚本...${RESET}"
             rm -f "$SCRIPT_PATH"
             rm -f "$BIN_LINK_DIR/f" "$BIN_LINK_DIR/F"
             rm -f "$FIRST_RUN_FLAG"
