@@ -31,7 +31,7 @@ if [ ! -f "$FIRST_RUN_FLAG" ]; then
 fi
 
 # =============================
-# 菜单函数（不清屏）
+# 菜单函数
 # =============================
 show_menu() {
     echo -e "${GREEN}========= 代理协议一键安装菜单 =========${RESET}"
@@ -65,8 +65,14 @@ show_menu() {
     echo -e "${GREEN}[99] 卸载脚本${RESET}"
     echo -e "${GREEN}[0]  退出脚本${RESET}"
     echo -e "${GREEN}========================================${RESET}"
+
+    read -p "请输入选项: " choice
+    install_protocol "$choice"
 }
 
+# =============================
+# 协议安装函数
+# =============================
 install_protocol() {
     case "$1" in
         01|1) bash <(curl -Ls https://raw.githubusercontent.com/eooce/sing-box/main/sing-box.sh) ;;
@@ -105,11 +111,11 @@ install_protocol() {
             ;;
         99|099)
             echo -e "${RED}卸载脚本及快捷键 f/F${RESET}"
-                rm -f "$SCRIPT_PATH"
-                rm -f "$BIN_LINK_DIR/f" "$BIN_LINK_DIR/F"
-                rm -f "$FIRST_RUN_FLAG"
-                echo -e "${GREEN}✅ 脚本和快捷键已卸载${RESET}"
-                exit 0
+            rm -f "$SCRIPT_PATH"
+            rm -f "$BIN_LINK_DIR/f" "$BIN_LINK_DIR/F"
+            rm -f "$FIRST_RUN_FLAG"
+            echo -e "${GREEN}✅ 脚本和快捷键已卸载${RESET}"
+            exit 0
             ;;
         0) exit 0 ;;
         *) echo -e "${RED}无效选择，请重试${RESET}" ;;
@@ -120,5 +126,5 @@ install_protocol() {
 # 主循环
 # =============================
 while true; do
-    menu
+    show_menu
 done
