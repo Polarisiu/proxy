@@ -1,6 +1,6 @@
 #!/bin/bash
 # ========================================
-# 代理协议一键菜单（F/f 快捷键，首次运行提示）
+# 代理协议一键菜单（f/F 快捷键，独立版）
 # ========================================
 
 RED="\033[31m"
@@ -8,37 +8,34 @@ GREEN="\033[32m"
 YELLOW="\033[33m"
 RESET="\033[0m"
 
-SCRIPT_PATH="$HOME/proxy.sh"
+SCRIPT_PATH="/root/proxy.sh"
 SCRIPT_URL="https://raw.githubusercontent.com/Polarisiu/proxy/main/proxy.sh"
-SHELL_RC="$HOME/.bashrc"
-FIRST_RUN_FLAG="$HOME/.proxy_first_run"
+BIN_LINK_DIR="/usr/local/bin"
+FIRST_RUN_FLAG="/root/.proxy_first_run"
 
-# 首次运行处理：下载脚本 + 添加快捷键
-if [[ ! -f "$FIRST_RUN_FLAG" ]]; then
-
-    # 下载菜单脚本（如果不存在）
-    if [[ ! -f "$SCRIPT_PATH" ]]; then
-        echo -e "${RED}菜单脚本不存在，正在下载...${RESET}"
-        curl -fsSL "$SCRIPT_URL" -o "$SCRIPT_PATH"
-        chmod +x "$SCRIPT_PATH"
-        echo -e "${RED}下载完成: $SCRIPT_PATH${RESET}"
+# =============================
+# 首次运行自动安装
+# =============================
+if [ ! -f "$FIRST_RUN_FLAG" ]; then
+    echo -e "${YELLOW}首次运行，正在保存脚本到 $SCRIPT_PATH ...${RESET}"
+    curl -fsSL -o "$SCRIPT_PATH" "$SCRIPT_URL"
+    if [ $? -ne 0 ]; then
+        echo -e "${RED}❌ 下载失败，请检查网络或 URL${RESET}"
+        exit 1
     fi
-
-    # 添加 F/f 快捷键
-    if ! grep -q "alias F='bash \$HOME/proxy.sh'" "$SHELL_RC"; then
-        echo "alias F='bash \$HOME/proxy.sh'" >> "$SHELL_RC"
-        echo "alias f='bash \$HOME/proxy.sh'" >> "$SHELL_RC"
-        echo -e "${RED} F/f 快捷键已添加,重新登录或输入source ~/.bashrc生效${RESET}"
-    fi
-
-    # 创建首次运行标记
+    chmod +x "$SCRIPT_PATH"
+    ln -sf "$SCRIPT_PATH" "$BIN_LINK_DIR/f"
+    ln -sf "$SCRIPT_PATH" "$BIN_LINK_DIR/F"
+    echo -e "${GREEN}✅ 安装完成！现在可以使用 ${YELLOW}f${RESET} 或 ${YELLOW}F${RESET} 命令快速启动菜单${RESET}"
     touch "$FIRST_RUN_FLAG"
 fi
 
+# =============================
+# 菜单函数（不清屏）
+# =============================
 show_menu() {
     clear
     echo -e "${GREEN}========= 代理协议一键安装菜单 =========${RESET}"
-    echo -e "${YELLOW}当前时间: $(date '+%Y-%m-%d %H:%M:%S')${RESET}"
     echo -e "${GREEN}[01] 老王 Sing-box 四合一${RESET}"
     echo -e "${GREEN}[02] 老王 Xray-2go 一键脚本${RESET}"
     echo -e "${GREEN}[03] mack-a 八合一脚本${RESET}"
@@ -99,31 +96,33 @@ install_protocol() {
         24) wget --no-check-certificate -O tcpx.sh https://raw.githubusercontent.com/ylx2016/Linux-NetSpeed/master/tcpx.sh && chmod +x tcpx.sh && ./tcpx.sh ;;
         25) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/socks5.sh) ;;
         88|088)
-            echo -e "${GREEN}正在更新脚本...${RESET}"
-            curl -fsSL "$SCRIPT_URL" -o "$SCRIPT_PATH"
+            echo -e "${GREEN}🔄 更新脚本...${RESET}"
+            curl -fsSL -o "$SCRIPT_PATH" "$SCRIPT_URL"
             chmod +x "$SCRIPT_PATH"
+            ln -sf "$SCRIPT_PATH" "$BIN_LINK_DIR/f"
+            ln -sf "$SCRIPT_PATH" "$BIN_LINK_DIR/F"
+            echo -e "${GREEN}✅ 已更新并刷新快捷键${RESET}"
             exec "$SCRIPT_PATH"
             ;;
         99|099)
-            echo -e "${RED}正在卸载脚本和快捷键...${RESET}"
-            rm -f "$SCRIPT_PATH"
-            sed -i "/alias F='bash \$HOME\/proxy.sh'/d" "$SHELL_RC"
-            sed -i "/alias f='bash \$HOME\/proxy.sh'/d" "$SHELL_RC"
-            rm -f "$FIRST_RUN_FLAG"
-            echo -e "${RED}卸载完成，请重新登录使快捷键失效${RESET}"
-            exit 0
+            echo -e "${RED}卸载脚本及快捷键 f/F${RESET}"
+                rm -f "$SCRIPT_PATH"
+                rm -f "$BIN_LINK_DIR/f" "$BIN_LINK_DIR/F"
+                rm -f "$FIRST_RUN_FLAG"
+                echo -e "${GREEN}✅ 脚本和快捷键已卸载${RESET}"
+                exit 0
+            else
+                echo -e "${YELLOW}取消卸载${RESET}"
+            fi
             ;;
-        0) echo -e "${GREEN}已退出脚本.${RESET}"; exit 0 ;;
-        *) echo -e "${RED}无效选项，请重新输入!${RESET}" ;;
+        0) exit 0 ;;
+        *) echo -e "${RED}无效选择，请重试${RESET}" ;;
     esac
 }
 
+# =============================
 # 主循环
+# =============================
 while true; do
-    show_menu
-    read -p "请输入编号: " choice
-    choice=$(echo "$choice" | tr -d '[:space:]')
-    install_protocol "$choice"
-    echo -e "\n${GREEN}按回车返回菜单...${RESET}"
-    read
+    menu
 done
