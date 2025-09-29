@@ -34,7 +34,6 @@ fi
 # 菜单函数（不清屏）
 # =============================
 show_menu() {
-    clear
     echo -e "${GREEN}========= 代理协议一键安装菜单 =========${RESET}"
     echo -e "${GREEN}[01] 老王 Sing-box 四合一${RESET}"
     echo -e "${GREEN}[02] 老王 Xray-2go 一键脚本${RESET}"
@@ -111,9 +110,6 @@ install_protocol() {
                 rm -f "$FIRST_RUN_FLAG"
                 echo -e "${GREEN}✅ 脚本和快捷键已卸载${RESET}"
                 exit 0
-            else
-                echo -e "${YELLOW}取消卸载${RESET}"
-            fi
             ;;
         0) exit 0 ;;
         *) echo -e "${RED}无效选择，请重试${RESET}" ;;
