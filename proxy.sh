@@ -1,6 +1,6 @@
 #!/bin/bash
 # ========================================
-# 代理协议一键菜单（f/F 快捷键，独立版）
+# 代理协议一键菜单（o/O 快捷键，独立版）
 # ========================================
 
 RED="\033[31m"
@@ -13,22 +13,21 @@ SCRIPT_URL="https://raw.githubusercontent.com/Polarisiu/proxy/main/proxy.sh"
 BIN_LINK_DIR="/usr/local/bin"
 
 # =============================
-# 确保脚本存在并创建快捷键
+# 首次运行自动安装
 # =============================
-if [[ ! -f "$SCRIPT_PATH" ]]; then
+if [ ! -f "$SCRIPT_PATH" ]; then
     echo -e "${YELLOW}首次运行，正在保存脚本到 $SCRIPT_PATH ...${RESET}"
     curl -fsSL -o "$SCRIPT_PATH" "$SCRIPT_URL"
-    if [[ $? -ne 0 ]]; then
+    if [ $? -ne 0 ]; then
         echo -e "${RED}❌ 下载失败，请检查网络或 URL${RESET}"
         exit 1
     fi
     chmod +x "$SCRIPT_PATH"
+    ln -sf "$SCRIPT_PATH" "$BIN_LINK_DIR/f"
+    ln -sf "$SCRIPT_PATH" "$BIN_LINK_DIR/F"
+    echo -e "${GREEN}✅ 安装完成${RESET}"
+    echo -e "${GREEN}💡 快捷键已添加：f 或 F 可快速启动${RESET}"
 fi
-
-# 创建 f/F 快捷键
-ln -sf "$SCRIPT_PATH" "$BIN_LINK_DIR/f"
-ln -sf "$SCRIPT_PATH" "$BIN_LINK_DIR/F"
-echo -e "${GREEN}✅ 快捷键已创建，可直接使用 ${YELLOW}f${RESET} ${GREEN}或${RESET} ${YELLOW}F${RESET} 启动菜单${RESET}"
 
 # =============================
 # 菜单函数
@@ -104,15 +103,15 @@ install_protocol() {
             echo -e "${GREEN}🔄 更新脚本...${RESET}"
             curl -fsSL -o "$SCRIPT_PATH" "$SCRIPT_URL"
             chmod +x "$SCRIPT_PATH"
-            ln -sf "$SCRIPT_PATH" "$BIN_LINK_DIR/f"
-            ln -sf "$SCRIPT_PATH" "$BIN_LINK_DIR/F"
+            ln -sf "$SCRIPT_PATH" "$BIN_LINK_DIR/o"
+            ln -sf "$SCRIPT_PATH" "$BIN_LINK_DIR/O"
             echo -e "${GREEN}✅ 更新完成! 可直接使用 F/f 启动脚本${RESET}"
             exec "$SCRIPT_PATH"
             ;;
         99|099)
             echo -e "${YELLOW}正在卸载脚本...${RESET}"
             rm -f "$SCRIPT_PATH"
-            rm -f "$BIN_LINK_DIR/f" "$BIN_LINK_DIR/F"
+            rm -f "$BIN_LINK_DIR/o" "$BIN_LINK_DIR/O"
             echo -e "${GREEN}✅ 脚本和快捷键已卸载${RESET}"
             exit 0
             ;;
