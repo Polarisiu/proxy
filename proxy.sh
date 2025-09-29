@@ -11,24 +11,24 @@ RESET="\033[0m"
 SCRIPT_PATH="/root/proxy.sh"
 SCRIPT_URL="https://raw.githubusercontent.com/Polarisiu/proxy/main/proxy.sh"
 BIN_LINK_DIR="/usr/local/bin"
-FIRST_RUN_FLAG="/root/.proxy_first_run"
 
 # =============================
-# 首次运行自动安装
+# 确保脚本存在并创建快捷键
 # =============================
-if [ ! -f "$FIRST_RUN_FLAG" ]; then
+if [[ ! -f "$SCRIPT_PATH" ]]; then
     echo -e "${YELLOW}首次运行，正在保存脚本到 $SCRIPT_PATH ...${RESET}"
     curl -fsSL -o "$SCRIPT_PATH" "$SCRIPT_URL"
-    if [ $? -ne 0 ]; then
+    if [[ $? -ne 0 ]]; then
         echo -e "${RED}❌ 下载失败，请检查网络或 URL${RESET}"
         exit 1
     fi
     chmod +x "$SCRIPT_PATH"
-    ln -sf "$SCRIPT_PATH" "$BIN_LINK_DIR/f"
-    ln -sf "$SCRIPT_PATH" "$BIN_LINK_DIR/F"
-    echo -e "${GREEN}✅ 安装完成！现在可以使用 ${YELLOW}f${RESET} ${GREEN}或${RESET} ${YELLOW}F${RESET} ${GREEN}命令快速启动菜单${RESET}"
-    touch "$FIRST_RUN_FLAG"
 fi
+
+# 创建 f/F 快捷键
+ln -sf "$SCRIPT_PATH" "$BIN_LINK_DIR/f"
+ln -sf "$SCRIPT_PATH" "$BIN_LINK_DIR/F"
+echo -e "${GREEN}✅ 快捷键已创建，可直接使用 ${YELLOW}f${RESET} ${GREEN}或${RESET} ${YELLOW}F${RESET} 启动菜单${RESET}"
 
 # =============================
 # 菜单函数
@@ -113,7 +113,6 @@ install_protocol() {
             echo -e "${YELLOW}正在卸载脚本...${RESET}"
             rm -f "$SCRIPT_PATH"
             rm -f "$BIN_LINK_DIR/f" "$BIN_LINK_DIR/F"
-            rm -f "$FIRST_RUN_FLAG"
             echo -e "${GREEN}✅ 脚本和快捷键已卸载${RESET}"
             exit 0
             ;;
