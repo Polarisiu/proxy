@@ -58,7 +58,7 @@ EOF
         curl -s ifconfig.me || curl -s ip.sb || hostname -I | awk '{print $1}' || echo "127.0.0.1"
     }
 
-    echo -e "${GREEN}✅ X-UI 已启动${RESET}"
+    echo -e "${GREEN}✅ 3X-UI 已启动${RESET}"
     echo -e "${GREEN}🌐 Web UI 地址: http://$(get_ip):2053${RESET}"
     echo -e "${GREEN}📂 证书位置: $APP_DIR/cert${RESET}"
     echo -e "${GREEN}初始账号/密码: admin/admin${RESET}"
@@ -71,7 +71,7 @@ function update_app() {
     docker compose pull
     docker compose up -d
     source "$CONFIG_FILE"
-    echo -e "${GREEN}✅ X-UI 已更新并重启完成${RESET}"
+    echo -e "${GREEN}✅ 3X-UI 已更新并重启完成${RESET}"
     read -p "按回车返回菜单..."
     menu
 }
@@ -80,7 +80,7 @@ function uninstall_app() {
     cd "$APP_DIR" || { echo "未检测到安装目录"; sleep 1; menu; }
     docker compose down -v
     rm -rf "$APP_DIR"
-    echo -e "${GREEN}✅ X-UI 已卸载，数据已删除${RESET}"
+    echo -e "${GREEN}✅ 3X-UI 已卸载，数据已删除${RESET}"
     read -p "按回车返回菜单..."
     menu
 }
