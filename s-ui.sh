@@ -17,15 +17,12 @@ pause_and_return() {
 menu_sui() {
     while true; do
         clear
-        echo -e "${blue}━━━━━━━━━━━━━━━━━━━━━━━━━━${reset}"
+        echo -e "${green}━━━━━━━━━━━━━━━━━━━━━━━━━━${reset}"
         echo -e "         Sui 面板管理"
-        echo -e "${blue}━━━━━━━━━━━━━━━━━━━━━━━━━━${reset}"
+        echo -e "${green}━━━━━━━━━━━━━━━━━━━━━━━━━━${reset}"
         echo -e "${green}1. 安装 Sui 面板${reset}"
-        echo -e "${red}2. 卸载 Sui 面板${reset}"
-        echo "--------------"
-        echo -e "${blue}0. 退出${reset}"
-        echo "--------------"
-
+        echo -e "${green}2. 卸载 Sui 面板${reset}"
+        echo -e "${green}0. 退出${reset}"
         read -p $'\033[1;32m请输入你的选择: \033[0m' sub_choice
         case $sub_choice in
             1)
