@@ -18,7 +18,7 @@ menu_sui() {
     while true; do
         clear
         echo -e "${green}━━━━━━━━━━━━━━━━━━━━━━━━━━${reset}"
-        echo -e "         Sui 面板管理"
+        echo -e "${green}       Sui 面板管理        ${reset}"
         echo -e "${green}━━━━━━━━━━━━━━━━━━━━━━━━━━${reset}"
         echo -e "${green}1. 安装 Sui 面板${reset}"
         echo -e "${green}2. 卸载 Sui 面板${reset}"
