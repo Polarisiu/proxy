@@ -14,6 +14,7 @@ RED='\033[0;31m'
 NC='\033[0m'
 
 while true; do
+    clear
     echo -e "${GREEN}=== FRP-Panel部署菜单 ===${NC}"
     echo -e "${GREEN}01) Master 部署${NC}"
     echo -e "${GREEN}02) Server 部署${NC}"
