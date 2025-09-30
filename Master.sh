@@ -19,14 +19,13 @@ GREEN='\033[0;32m'
 NC='\033[0m'  # No Color
 
 while true; do
-    echo -e "${GREEN}========================================${NC}"
-    echo -e "${GREEN}请选择操作：${NC}"
-    echo -e "${GREEN}1) 安装 / 部署 Master${NC}"
+    echo -e "${GREEN}=====Master管理菜单=======${NC}"
+    echo -e "${GREEN}1) 安装部署 Master${NC}"
     echo -e "${GREEN}2) 卸载 Master${NC}"
-    echo -e "${GREEN}3) 更新 Master 镜像${NC}"
-    echo -e "${GREEN}4) 查看 Master 日志${NC}"
-    echo -e "${GREEN}5) 退出${NC}"
-    read -p "输入选项 [1-5]: " choice
+    echo -e "${GREEN}3) 更新 Master${NC}"
+    echo -e "${GREEN}4) 查看 Master日志${NC}"
+    echo -e "${GREEN}0)退出${NC}"
+    read -p "输入选项 : " choice
 
     case "$choice" in
     1)
@@ -59,7 +58,7 @@ while true; do
 
         # 生成 docker-compose.yaml
         cat > "$COMPOSE_FILE" <<EOF
-version: '3'
+
 services:
   frpp-master:
     image: vaalacat/frp-panel:latest
