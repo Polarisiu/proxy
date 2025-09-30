@@ -9,7 +9,6 @@ plain="\033[0m"
 show_menu() {
     clear
     echo -e "${green}=========== 3x-ui 管理面板 (Alpine) ===========${plain}"
-    echo -e " ${yellow} 首次安装需重启${plain}"
     echo -e " ${green}1.安装 3x-ui${plain}"
     echo -e " ${green}2.卸载 3x-ui${plain}"
     echo -e " ${green}3.启动 3x-ui${plain}"
