@@ -10,8 +10,7 @@ menu() {
     echo -e "${GREEN}1) 安装面板${RESET}"
     echo -e "${GREEN}2) 卸载节点${RESET}"
     echo -e "${GREEN}0) 退出${RESET}"
-    echo
-    read -p $'\033[32m请选择操作 (0-2): \033[0m' choice
+    read -p $'\033[32m请选择操作: \033[0m' choice
     case $choice in
         1)
             echo -e "${GREEN}正在安装面板...${RESET}"
