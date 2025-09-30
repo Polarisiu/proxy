@@ -439,20 +439,20 @@ main_menu() {
   while true; do
     echo
     echo -e "${GREEN}==============================${RESET}"
-    echo -e "${GREEN}     Socks5 管理工具     ${RESET}"
+    echo -e "${GREEN}     Socks5 管理工具          ${RESET}"
     echo -e "${GREEN}==============================${RESET}"
     echo -e "${GREEN}1) 安装 socks5${RESET}"
     echo -e "${GREEN}2) 修改 socks5 配置${RESET}"
     echo -e "${GREEN}3) 卸载 socks5${RESET}"
     echo -e "${GREEN}4) 状态${RESET}"
-    echo -e "${GREEN}5) 退出${RESET}"
-    read -r -p "$(echo -e "${GREEN}请选择 (1-5): ${RESET}")" opt < /dev/tty || opt="5"
+    echo -e "${GREEN}0) 退出${RESET}"
+    read -r -p "$(echo -e "${GREEN}请选择 : ${RESET}")" opt < /dev/tty || opt="5"
     case "${opt}" in
       1) install_flow ;;
       2) modify_flow ;;
       3) uninstall_flow ;;
       4) status_flow ;;
-      5) echo -e "${GREEN}退出。${RESET}"; exit 0 ;;
+      0) echo -e "${GREEN}退出。${RESET}"; exit 0 ;;
       *) echo -e "${RED}无效选项。${RESET}" ;;
     esac
   done
