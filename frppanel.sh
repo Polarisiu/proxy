@@ -19,7 +19,7 @@ while true; do
     echo -e "${GREEN}01) Master 部署${NC}"
     echo -e "${GREEN}02) Server 部署${NC}"
     echo -e "${GREEN}03) Client 部署${NC}"
-    echo -e "${GREEN}0)  退出${NC}"
+    echo -e "${GREEN} 0) 退出${NC}"
     read -rp "请输入编号: " choice
 
     case $choice in
