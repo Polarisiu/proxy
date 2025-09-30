@@ -167,7 +167,7 @@ function menu() {
     echo -e "${GREEN}1. 安装并启动代理${RESET}"
     echo -e "${GREEN}2. 卸载代理${RESET}"
     echo -e "${GREEN}3. 查看运行日志${RESET}"
-    echo -e "${GREEN}4. 修改配置并重启容器${RESET}"
+    echo -e "${GREEN}4. 修改配置${RESET}"
     echo -e "${GREEN}0. 退出${RESET}"
     echo -e "${GREEN}=================================${RESET}"
     read -p "请输入选项: " choice
