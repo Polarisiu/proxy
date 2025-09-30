@@ -19,7 +19,7 @@ menu() {
     echo -e "${GREEN}=== FRP-Panel Client管理菜单 ===${NC}"
     echo -e "${GREEN}1) FRP-Panel Client部署${NC}"
     echo -e "${GREEN}2) FRP-Panel Client卸载${NC}"
-    echo -e "${GREEN}3) FRP-Panel Client更新镜像${NC}"
+    echo -e "${GREEN}3) FRP-Panel Client更新${NC}"
     echo -e "${GREEN}4) FRP-Panel Client查看日志${NC}"
     echo -e "${GREEN}0) 退出${NC}"
     echo -ne "${GREEN}请输入编号:${NC} "
@@ -44,7 +44,6 @@ deploy() {
     mkdir -p "$BASE_DIR"
 
     cat > "$COMPOSE_FILE" <<EOF
-version: '3'
 services:
   frp-panel-client:
     image: vaalacat/frp-panel
