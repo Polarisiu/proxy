@@ -1,5 +1,5 @@
 #!/bin/bash
-# Tuic v5 管理脚本 - eooce 完整版（自定义端口+自动显示URL）
+# Tuic v5 管理脚本（自定义端口+自动显示URL）
 
 green="\033[32m"
 yellow="\033[33m"
