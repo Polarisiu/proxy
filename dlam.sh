@@ -6,7 +6,7 @@ RESET="\033[0m"
 
 menu() {
     clear
-    echo -e "${GREEN}=== 转发面板管理菜单 ===${RESET}"
+    echo -e "${GREEN}=== 哆啦A梦面板管理菜单 ===${RESET}"
     echo -e "${GREEN}1) 安装面板${RESET}"
     echo -e "${GREEN}2) 卸载节点${RESET}"
     echo -e "${GREEN}0) 退出${RESET}"
