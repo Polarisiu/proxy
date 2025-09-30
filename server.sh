@@ -13,7 +13,7 @@ CONFIG_FILE="$APP_DIR/config.env"
 function menu() {
     clear
     echo -e "${GREEN}=== FRP-Panel Server 管理菜单 ===${RESET}"
-    echo -e "${GREEN}1) 安装/启动${RESET}"
+    echo -e "${GREEN}1) 安装启动${RESET}"
     echo -e "${GREEN}2) 更新${RESET}"
     echo -e "${GREEN}3) 卸载(含数据)${RESET}"
     echo -e "${GREEN}4) 查看日志${RESET}"
@@ -33,12 +33,12 @@ function menu() {
 function install_app() {
     mkdir -p "$APP_DIR"
 
-    read -p "请输入全局密钥 (需与 Master 相同): " secret
+    read -p "请输入全局密钥 ( Master 生成): " secret
     read -p "请输入节点 ID [默认: node1]: " input_id
     NODE_ID=${input_id:-node1}
-    read -p "请输入 Master API 地址 [默认: http://frpp.example.com:9000]: " input_api
+    read -p "请输入 Master API 地址 [例如: http://frpp.example.com:9000]: " input_api
     API_URL=${input_api:-http://frpp.example.com:9000}
-    read -p "请输入 Master RPC 地址 [默认: grpc://frpp-rpc.example.com:9001]: " input_rpc
+    read -p "请输入 Master RPC 地址 [例如: grpc://frpp-rpc.example.com:9001]: " input_rpc
     RPC_URL=${input_rpc:-grpc://frpp-rpc.example.com:9001}
 
     cat > "$CONFIG_FILE" <<EOF
