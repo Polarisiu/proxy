@@ -37,7 +37,7 @@ menu() {
                 ;;
             4)
                 echo -e "${GREEN}正在安装Docker 版本 3XUI...${RESET}"
-                bash <(curl -sL https://raw.githubusercontent.com/Polarisiu/proxy/main/3xuidok.sh)
+                bash <(curl -sL https://raw.githubusercontent.com/Polarisiu/proxy/main/3xuidocker.sh)
                 pause
                 ;;
             0)
