@@ -26,14 +26,14 @@ show_menu() {
     echo -e "${GREEN}2) 更新 WireGuard 服务${RESET}"
     echo -e "${GREEN}3) 查看所有客户端配置${RESET}"
     echo -e "${GREEN}4) 卸载 WireGuard 服务${RESET}"
-    echo -e "${GREEN}5) 退出${RESET}"
+    echo -e "${GREEN}0) 退出${RESET}"
     read -e -p "请输入选项: " option
     case $option in
         1) modify_and_install_start_wireguard ;;
         2) update_wireguard ;;
         3) view_client_configs ;;
         4) stop_wireguard ;;
-        5) exit 0 ;;
+        0) exit 0 ;;
         *) echo -e "${gl_huang}无效选项，请重新选择！${gl_bai}" && sleep 2 && show_menu ;;
     esac
 }
@@ -130,7 +130,7 @@ modify_and_install_start_wireguard() {
     echo -e "${gl_huang}1. 手机下载wg的APP，扫描上方二维码，可以快速连接网络${gl_bai}"
     echo -e "${gl_huang}2. Windows下载客户端，复制配置代码连接网络。${gl_bai}"
     echo -e "${gl_huang}3. Linux用脚本部署WG客户端，复制配置代码连接网络。${gl_bai}"
-    echo -e "${gl_huang}官方客户端下载方式: https://www.wireguard.com/install/${gl_bai}"
+    echo -e "${gl_huang}官方客户端下载方式: https://www.wireguard.com/install${gl_bai}"
     read -p "按任意键返回主菜单..." && show_menu
 }
 
