@@ -27,7 +27,7 @@ show_menu() {
     echo -e "${GREEN}3) 查看所有客户端配置${RESET}"
     echo -e "${GREEN}4) 卸载 WireGuard 服务${RESET}"
     echo -e "${GREEN}5) 退出${RESET}"
-    read -e -p "请输入选项 (1-5): " option
+    read -e -p "请输入选项: " option
     case $option in
         1) modify_and_install_start_wireguard ;;
         2) update_wireguard ;;
@@ -168,6 +168,11 @@ update_wireguard() {
     read -p "按任意键返回主菜单..." && show_menu
 }
 
+view_client_configs() {
+    echo "查看所有客户端配置..."
+    docker exec wireguard sh -c 'for d in /config/peer_*; do echo "# $(basename $d) "; cat $d/*.conf; done'
+    read -p "按任意键返回主菜单..." && show_menu
+}
 
 # 停止并删除 WireGuard 服务及所有数据
 stop_wireguard() {
