@@ -12,7 +12,6 @@ menu() {
     echo -e "${GREEN}3) 国外安装 端口流量狗${RESET}"
     echo -e "${GREEN}4) 国内安装 端口流量狗${RESET}"
     echo -e "${GREEN}0) 退出${RESET}"
-    echo
     read -p $'\033[32m请选择操作: \033[0m' choice
     case $choice in
         1)
