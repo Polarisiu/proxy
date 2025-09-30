@@ -1,94 +1,97 @@
 #!/bin/bash
-# ==========================================
-# 一键管理 FRP-Panel Server (Docker)
-# 功能: 安装/启动 | 卸载 | 更新 | 查看日志
-# 每次操作完成后返回菜单，菜单字体绿色
-# ==========================================
+# ========================================
+# FRP-Panel Server (子节点) 一键管理脚本
+# ========================================
 
-# 颜色
-GREEN='\033[0;32m'
-RED='\033[0;31m'
-NC='\033[0m'
+GREEN="\033[32m"
+RESET="\033[0m"
+APP_NAME="frp-panel-server"
+APP_DIR="/opt/frp/$APP_NAME"
+COMPOSE_FILE="$APP_DIR/docker-compose.yml"
+CONFIG_FILE="$APP_DIR/config.env"
 
-BASE_DIR="$(pwd)"
-COMPOSE_FILE="$BASE_DIR/docker-compose.yaml"
-CONTAINER_NAME="frp-panel-server"
-
-show_menu() {
-    echo -e "${GREEN}=== FRP-Panel Server 部署 ===${NC}"
-    echo -e "${GREEN}1) 安装/启动 Server${NC}"
-    echo -e "${GREEN}2) 卸载 Server${NC}"
-    echo -e "${GREEN}3) 更新 Server${NC}"
-    echo -e "${GREEN}4) 查看 Server 日志${NC}"
-    echo -e "${GREEN}5) 退出${NC}"
-    read -p "$(echo -e ${GREEN}请输入选项 [1-5]: ${NC})" choice
+function menu() {
+    clear
+    echo -e "${GREEN}=== FRP-Panel Server 管理菜单 ===${RESET}"
+    echo -e "${GREEN}1) 安装/启动${RESET}"
+    echo -e "${GREEN}2) 更新${RESET}"
+    echo -e "${GREEN}3) 卸载(含数据)${RESET}"
+    echo -e "${GREEN}4) 查看日志${RESET}"
+    echo -e "${GREEN}0) 退出${RESET}"
+    echo -e "${GREEN}================================${RESET}"
+    read -p "请选择: " choice
+    case $choice in
+        1) install_app ;;
+        2) update_app ;;
+        3) uninstall_app ;;
+        4) view_logs ;;
+        0) exit 0 ;;
+        *) echo "无效选择"; sleep 1; menu ;;
+    esac
 }
 
-install_or_start() {
-    echo -e "${GREEN}=== 安装/启动 FRP-Panel Server ===${NC}"
-    read -p "请输入全局密钥 (-s) [abc123]: " APP_SECRET
-    APP_SECRET=${APP_SECRET:-abc123}
+function install_app() {
+    mkdir -p "$APP_DIR"
 
-    read -p "请输入 Server 实例名 (-i) [user.s.server1]: " INSTANCE_NAME
-    INSTANCE_NAME=${INSTANCE_NAME:-user.s.server1}
+    read -p "请输入全局密钥 (需与 Master 相同): " secret
+    read -p "请输入节点 ID [默认: node1]: " input_id
+    NODE_ID=${input_id:-node1}
+    read -p "请输入 Master API 地址 [默认: http://frpp.example.com:9000]: " input_api
+    API_URL=${input_api:-http://frpp.example.com:9000}
+    read -p "请输入 Master RPC 地址 [默认: grpc://frpp-rpc.example.com:9001]: " input_rpc
+    RPC_URL=${input_rpc:-grpc://frpp-rpc.example.com:9001}
 
-    read -p "请输入 API URL [http://frpp.example.com:9000]: " API_URL
-    API_URL=${API_URL:-http://frpp.example.com:9000}
-
-    read -p "请输入 RPC URL [grpc://frpp-rpc.example.com:9001]: " RPC_URL
-    RPC_URL=${RPC_URL:-grpc://frpp-rpc.example.com:9001}
-
-    cat > "$COMPOSE_FILE" <<EOF
-version: '3'
-services:
-  frp-panel-server:
-    image: vaalacat/frp-panel
-    container_name: $CONTAINER_NAME
-    network_mode: host
-    restart: unless-stopped
-    command: server -s $APP_SECRET -i $INSTANCE_NAME --api-url $API_URL --rpc-url $RPC_URL
+    cat > "$CONFIG_FILE" <<EOF
+SECRET=$secret
+NODE_ID=$NODE_ID
+API_URL=$API_URL
+RPC_URL=$RPC_URL
 EOF
 
-    echo -e "${GREEN}docker-compose.yaml 已生成:${NC}"
-    cat "$COMPOSE_FILE"
+    cat > "$COMPOSE_FILE" <<EOF
+services:
+  frp-panel-server:
+    image: vaalacat/frp-panel:latest
+    container_name: frp-panel-server
+    network_mode: host
+    restart: unless-stopped
+    command: server -s $secret -i $NODE_ID --api-url $API_URL --rpc-url $RPC_URL
+EOF
 
-    echo -e "${GREEN}正在启动 FRP-Panel Server...${NC}"
-    docker-compose up -d
-    echo -e "${GREEN}✅ Server 启动完成，容器名: $CONTAINER_NAME${NC}"
-    read -p "按回车键返回主菜单..." 
+    cd "$APP_DIR"
+    docker compose up -d
+
+    echo -e "${GREEN}✅ FRP-Panel Server 已启动${RESET}"
+    echo -e "${GREEN}🆔 节点ID: $NODE_ID${RESET}"
+    echo -e "${GREEN}🔑 密钥: $secret${RESET}"
+    echo -e "${GREEN}🌐 Master API: $API_URL${RESET}"
+    echo -e "${GREEN}🌐 Master RPC: $RPC_URL${RESET}"
+    read -p "按回车返回菜单..."
+    menu
 }
 
-uninstall() {
-    echo -e "${GREEN}=== 卸载 FRP-Panel Server ===${NC}"
-    docker-compose down
-    rm -f "$COMPOSE_FILE"
-    echo -e "${GREEN}✅ Server 卸载完成${NC}"
-    read -p "按回车键返回主菜单..." 
+function update_app() {
+    cd "$APP_DIR" || { echo "未检测到安装目录，请先安装"; sleep 1; menu; }
+    docker compose pull
+    docker compose up -d
+    echo -e "${GREEN}✅ FRP-Panel Server 已更新并重启完成${RESET}"
+    read -p "按回车返回菜单..."
+    menu
 }
 
-update() {
-    echo -e "${GREEN}=== 更新 FRP-Panel Server 镜像 ===${NC}"
-    docker pull vaalacat/frp-panel
-    docker-compose up -d
-    echo -e "${GREEN}✅ Server 更新完成${NC}"
-    read -p "按回车键返回主菜单..." 
+function uninstall_app() {
+    cd "$APP_DIR" || { echo "未检测到安装目录"; sleep 1; menu; }
+    docker compose down -v
+    rm -rf "$APP_DIR"
+    echo -e "${GREEN}✅ FRP-Panel Server 已卸载，数据已删除${RESET}"
+    read -p "按回车返回菜单..."
+    menu
 }
 
-show_logs() {
-    echo -e "${GREEN}=== 查看 FRP-Panel Server 日志 (Ctrl+C 退出) ===${NC}"
-    docker logs -f $CONTAINER_NAME
-    echo -e "${GREEN}已退出日志查看${NC}"
-    read -p "按回车键返回主菜单..." 
+function view_logs() {
+    docker logs -f frp-panel-server
+    read -p "按回车返回菜单..."
+    menu
 }
 
-while true; do
-    show_menu
-    case "$choice" in
-        1) install_or_start ;;
-        2) uninstall ;;
-        3) update ;;
-        4) show_logs ;;
-        5) exit 0 ;;
-        *) echo -e "${GREEN}无效选项${NC}" ;;
-    esac
-done
+menu
