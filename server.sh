@@ -6,7 +6,7 @@
 GREEN="\033[32m"
 RESET="\033[0m"
 APP_NAME="frp-panel-server"
-APP_DIR="/opt/frp/$APP_NAME"
+APP_DIR="/opt/$APP_NAME"
 COMPOSE_FILE="$APP_DIR/docker-compose.yml"
 CONFIG_FILE="$APP_DIR/config.env"
 
@@ -83,7 +83,6 @@ function uninstall_app() {
     cd "$APP_DIR" || { echo "未检测到安装目录"; sleep 1; menu; }
     docker compose down -v
     rm -rf "$APP_DIR"
-    rm -rf /opt/frp
     echo -e "${GREEN}✅ FRP-Panel Server 已卸载，数据已删除${RESET}"
     read -p "按回车返回菜单..."
     menu
