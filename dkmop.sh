@@ -60,7 +60,7 @@ EOF
 function install_proxy() {
     mkdir -p "$DATA_DIR"
 
-    echo -e "\n${GREEN}=== 安装/启动 MTProto Proxy ===${RESET}\n"
+    echo -e "${GREEN}=== 安装/启动 MTProto Proxy ===${RESET}"
     read -p "请输入外部端口 (默认 8443, 留空随机): " input_port
     if [[ -z "$input_port" ]]; then
         PORT=$(get_random_port)
@@ -97,7 +97,7 @@ function install_proxy() {
     IP=$(get_ip)
     SECRET=$(docker logs --tail 50 ${NAME} 2>&1 | grep "MTProxy Secret" | awk '{print $NF}' | tail -n1)
 
-    echo -e "\n${GREEN}✅ 安装完成！代理信息如下：${RESET}"
+    echo -e "${GREEN}✅ 安装完成！代理信息如下：${RESET}"
     echo "服务器 IP: $IP"
     echo "端口     : $PORT"
     echo "Secret   : $SECRET"
@@ -105,11 +105,12 @@ function install_proxy() {
     echo
     echo "👉 Telegram 链接："
     echo "tg://proxy?server=$IP&port=$PORT&secret=$SECRET"
+    echo -e "${GREEN}📂 数据目录: /opt/mtproxy${RESET}"
 }
 
 # 卸载代理
 function uninstall_proxy() {
-    echo -e "\n${GREEN}=== 卸载 MTProto Proxy ===${RESET}\n"
+    echo -e "${GREEN}=== 卸载 MTProto Proxy ===${RESET}"
     docker rm -f ${NAME} >/dev/null 2>&1
     rm -rf "$DATA_DIR"
     echo "✅ 已卸载并清理配置。"
@@ -121,14 +122,14 @@ function show_logs() {
         echo "❌ 容器未运行，请先安装或启动代理。"
         return
     fi
-    echo -e "\n${GREEN}=== MTProto Proxy 日志 (最近50行) ===${RESET}\n"
+    echo -e "${GREEN}=== MTProto Proxy 日志 (最近50行) ===${RESET}"
     docker logs --tail=50 -f ${NAME}
 }
 
 # 修改配置并重启
 function modify_proxy() {
     read_config
-    echo -e "\n${YELLOW}=== 修改配置并重启 MTProto Proxy ===${RESET}\n"
+    echo -e "${YELLOW}=== 修改配置并重启 MTProto Proxy ===${RESET}"
     read -p "请输入新的端口 (留空则不修改): " NEW_PORT
     read -p "请输入新的 domain (留空则不修改): " NEW_DOMAIN
     read -p "IP 白名单选项 (OFF/IP/IPSEG, 留空则不修改): " NEW_IPWL
@@ -160,6 +161,7 @@ function modify_proxy() {
     echo "domain   : $DOMAIN"
     echo "👉 Telegram 链接："
     echo "tg://proxy?server=$IP&port=$PORT&secret="
+    echo -e "${GREEN}📂 数据目录: /opt/mtproxy${RESET}"
 }
 
 
