@@ -126,11 +126,8 @@ modify_and_install_start_wireguard() {
     echo -e "${gl_huang}所有客户端配置代码: ${gl_bai}"
     docker exec wireguard sh -c 'for d in /config/peer_*; do echo "# $(basename $d) "; cat $d/*.conf; echo; done'
     sleep 2
-    echo -e "${gl_huang}${COUNT}个客户端配置全部输出，使用方法如下：${gl_bai}"
-    echo -e "${gl_huang}1. 手机下载wg的APP，扫描上方二维码，可以快速连接网络${gl_bai}"
-    echo -e "${gl_huang}2. Windows下载客户端，复制配置代码连接网络。${gl_bai}"
-    echo -e "${gl_huang}3. Linux用脚本部署WG客户端，复制配置代码连接网络。${gl_bai}"
-    echo -e "${gl_huang}官方客户端下载方式: https://www.wireguard.com/install${gl_bai}"
+
+    echo -e "${gl_huang}📂 数据目录: /opt/wireguard${gl_bai}"
     read -p "按任意键返回主菜单..." && show_menu
 }
 
