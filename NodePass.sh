@@ -92,6 +92,7 @@ EOF
     echo -e "${GREEN}✅ NodePass Dashboard 已启动${RESET}"
     echo -e "${GREEN}🌐 Web 地址: http://127.0.0.1:$PORT${RESET}"
     echo -e "${GREEN}📂 数据目录: $APP_DIR${RESET}"
+    echo -e "${GREEN}🌐 账号密码: 查看日志${RESET}"
     read -rp "按回车返回菜单..."
     menu
 }
