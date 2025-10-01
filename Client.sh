@@ -84,6 +84,7 @@ function uninstall_app() {
     cd "$APP_DIR" || { echo "未检测到安装目录"; sleep 1; menu; }
     docker compose down -v
     rm -rf "$APP_DIR"
+    rm -rf /opt/frp
     echo -e "${GREEN}✅ FRP-Panel Client 已卸载，数据已删除${RESET}"
     read -p "按回车返回菜单..."
     menu
