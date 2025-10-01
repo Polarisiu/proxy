@@ -16,9 +16,9 @@ NC='\033[0m'
 while true; do
     clear
     echo -e "${GREEN}=== FRP-Panel部署菜单 ===${NC}"
-    echo -e "${GREEN}01) Master 部署${NC}"
-    echo -e "${GREEN}02) Server 部署${NC}"
-    echo -e "${GREEN}03) Client 部署${NC}"
+    echo -e "${GREEN}01) Master 面板部署${NC}"
+    echo -e "${GREEN}02) Server 服务端部署${NC}"
+    echo -e "${GREEN}03) Client 客户端部署${NC}"
     echo -e "${GREEN} 0) 退出${NC}"
     read -rp "请输入编号: " choice
 
