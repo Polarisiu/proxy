@@ -1,191 +1,115 @@
 #!/bin/bash
-# MTProto Proxy 管理脚本 for Docker
-# 数据统一存放在 /opt/mtproxy
-
-NAME="mtproxy"
-IMAGE="ellermister/mtproxy"
-DATA_DIR="/opt/mtproxy"
+# ======================================
+# MTProxy 一键管理脚本 (Docker)
+# ======================================
 
 GREEN="\033[32m"
 YELLOW="\033[33m"
+RED="\033[31m"
 RESET="\033[0m"
 
-# 检测端口是否被占用
-function check_port() {
-    local port=$1
-    if command -v lsof >/dev/null 2>&1; then
-        lsof -i :"$port" >/dev/null 2>&1
-    elif command -v ss >/dev/null 2>&1; then
-        ss -tuln | grep -q ":$port "
-    else
-        netstat -tuln 2>/dev/null | grep -q ":$port "
-    fi
-    [[ $? -eq 0 ]] && return 1 || return 0
-}
+APP_NAME="mtproxy"
+APP_DIR="/opt/$APP_NAME"
+COMPOSE_FILE="$APP_DIR/docker-compose.yml"
 
-function get_random_port() {
-    while true; do
-        PORT=$(shuf -i 1025-65535 -n 1)
-        check_port $PORT && { echo $PORT; break; }
-    done
-}
-
-function get_ip() {
-    curl -s https://api.ipify.org || curl -s ifconfig.me || curl -s icanhazip.com
-}
-
-# 读取原配置文件（如果存在）
-function read_config() {
-    CONFIG_FILE="$DATA_DIR/config.env"
-    if [[ -f "$CONFIG_FILE" ]]; then
-        source "$CONFIG_FILE"
-    else
-        PORT=8443
-        DOMAIN="cloudflare.com"
-        IPWL="OFF"
+check_docker() {
+    if ! command -v docker &>/dev/null; then
+        echo -e "${RED}未检测到 Docker，请先安装 Docker${RESET}"
+        exit 1
     fi
 }
 
-# 保存配置
-function save_config() {
-    mkdir -p "$DATA_DIR"
-    cat > "$DATA_DIR/config.env" <<EOF
-PORT=$PORT
-DOMAIN=$DOMAIN
-IPWL=$IPWL
+menu() {
+    clear
+    echo -e "${GREEN}=== MTProxy 管理菜单 ===${RESET}"
+    echo -e "${GREEN}1) 安装启动${RESET}"
+    echo -e "${GREEN}2) 更新${RESET}"
+    echo -e "${GREEN}3) 卸载${RESET}"
+    echo -e "${GREEN}4) 查看日志${RESET}"
+    echo -e "${GREEN}0) 退出${RESET}"
+    read -rp "请选择: " choice
+    case $choice in
+        1) install_app ;;
+        2) update_app ;;
+        3) uninstall_app ;;
+        4) view_logs ;;
+        0) exit 0 ;;
+        *) echo "无效选择"; sleep 1; menu ;;
+    esac
+}
+
+install_app() {
+    mkdir -p "$APP_DIR"
+    read -rp "请输入域名 [默认: cloudflare.com]: " domain
+    domain=${domain:-cloudflare.com}
+
+    read -rp "请输入 MTProxy secret (回车自动生成随机32字符): " secret
+    if [[ -z "$secret" ]]; then
+        secret=$(openssl rand -hex 16)  # 16字节十六进制 => 32字符
+        echo "已生成随机 secret: $secret"
+    fi
+
+    read -rp "是否启用 IP 白名单 (ON/OFF) [默认: OFF]: " ip_white
+    ip_white=${ip_white:-OFF}
+    read -rp "HTTP 端口 [默认:8080]: " http_port
+    http_port=${http_port:-8080}
+    read -rp "HTTPS 端口 [默认:8443]: " https_port
+    https_port=${https_port:-8443}
+
+    cat > "$COMPOSE_FILE" <<EOF
+services:
+  mtproxy:
+    container_name: mtproxy
+    image: ellermister/mtproxy:latest
+    restart: always
+    environment:
+      - domain=${domain}
+      - secret=${secret}
+      - ip_white_list=${ip_white}
+    ports:
+      - "${http_port}:80"
+      - "${https_port}:443"
 EOF
-}
 
-# 安装或启动代理
-function install_proxy() {
-    mkdir -p "$DATA_DIR"
-
-    echo -e "${GREEN}=== 安装/启动 MTProto Proxy ===${RESET}"
-    read -p "请输入外部端口 (默认 8443, 留空随机): " input_port
-    if [[ -z "$input_port" ]]; then
-        PORT=$(get_random_port)
-        echo "随机选择未占用端口: $PORT"
-    else
-        PORT=$input_port
-        while ! check_port $PORT; do
-            echo "端口 $PORT 已被占用，请重新输入"
-            read -p "端口: " PORT
-        done
-    fi
-
-    read -p "IP 白名单选项 (OFF/IP/IPSEG, 默认 OFF): " IPWL
-    IPWL=${IPWL:-OFF}
-    read -p "请输入 domain (伪装域名, 默认 cloudflare.com): " DOMAIN
-    DOMAIN=${DOMAIN:-cloudflare.com}
-
-    save_config
-
-    docker rm -f ${NAME} >/dev/null 2>&1
-
-    docker run -d --name ${NAME} \
-        --restart=always \
-        -v ${DATA_DIR}:/data \
-        -e domain="${DOMAIN}" \
-        -e ip_white_list="${IPWL}" \
-        -p 8080:80 \
-        -p ${PORT}:443 \
-        ${IMAGE}
-
-    echo "⏳ 等待 5 秒让容器启动..."
-    sleep 5
+    cd "$APP_DIR" || exit
+    docker compose up -d
 
     IP=$(get_ip)
     SECRET=$(docker logs --tail 50 ${NAME} 2>&1 | grep "MTProxy Secret" | awk '{print $NF}' | tail -n1)
 
-    echo -e "${GREEN}✅ 安装完成！代理信息如下：${RESET}"
-    echo "服务器 IP: $IP"
-    echo "端口     : $PORT"
-    echo "Secret   : $SECRET"
-    echo "domain   : $DOMAIN"
-    echo
-    echo "👉 Telegram 链接："
-    echo "tg://proxy?server=$IP&port=$PORT&secret=$SECRET"
+    echo -e "${GREEN}✅ MTProxy 已启动${RESET}"
+    echo -e "${YELLOW}HTTP 端口: $http_port${RESET}"
+    echo -e "${YELLOW}HTTPS 端口: $https_port${RESET}"
+    echo -e "${GREEN}👉 Telegram 链接：日志查看将端口替换为$https_port即可${RESET}"
     echo -e "${GREEN}📂 数据目录: /opt/mtproxy${RESET}"
-}
-
-# 卸载代理
-function uninstall_proxy() {
-    echo -e "${GREEN}=== 卸载 MTProto Proxy ===${RESET}"
-    docker rm -f ${NAME} >/dev/null 2>&1
-    rm -rf "$DATA_DIR"
-    echo "✅ 已卸载并清理配置。"
-}
-
-# 查看日志
-function show_logs() {
-    if ! docker ps --format '{{.Names}}' | grep -Eq "^${NAME}\$"; then
-        echo "❌ 容器未运行，请先安装或启动代理。"
-        return
-    fi
-    echo -e "${GREEN}=== MTProto Proxy 日志 (最近50行) ===${RESET}"
-    docker logs --tail=50 -f ${NAME}
-}
-
-# 修改配置并重启
-function modify_proxy() {
-    read_config
-    echo -e "${YELLOW}=== 修改配置并重启 MTProto Proxy ===${RESET}"
-    read -p "请输入新的端口 (留空则不修改): " NEW_PORT
-    read -p "请输入新的 domain (留空则不修改): " NEW_DOMAIN
-    read -p "IP 白名单选项 (OFF/IP/IPSEG, 留空则不修改): " NEW_IPWL
-
-    PORT=${NEW_PORT:-$PORT}
-    DOMAIN=${NEW_DOMAIN:-$DOMAIN}
-    IPWL=${NEW_IPWL:-$IPWL}
-
-    save_config
-    docker rm -f ${NAME} >/dev/null 2>&1
-
-    docker run -d --name ${NAME} \
-        --restart=always \
-        -v ${DATA_DIR}:/data \
-        -e domain="${DOMAIN}" \
-        -e ip_white_list="${IPWL}" \
-        -p 8080:80 \
-        -p ${PORT}:443 \
-        ${IMAGE}
-
-    sleep 5
-    IP=$(get_ip)
-    SECRET=$(docker logs --tail 50 ${NAME} 2>&1 | grep "MTProxy Secret:" | tail -n1 | sed 's/.*MTProxy Secret: //g' | tr -d '[:space:]')
-
-    echo -e "${GREEN}✅ 配置修改完成！代理信息如下：${RESET}"
-    echo "服务器 IP: $IP"
-    echo "端口     : $PORT"
-    echo "Secret   : 日志获取"
-    echo "domain   : $DOMAIN"
-    echo "👉 Telegram 链接："
-    echo "tg://proxy?server=$IP&port=$PORT&secret="
-    echo -e "${GREEN}📂 数据目录: /opt/mtproxy${RESET}"
-}
-
-
-# 菜单
-function menu() {
-    clear
-    echo -e "${GREEN}===== MTProto Proxy 管理脚本 =====${RESET}"
-    echo -e "${GREEN}1. 安装启动代理${RESET}"
-    echo -e "${GREEN}2. 卸载代理${RESET}"
-    echo -e "${GREEN}3. 查看运行日志${RESET}"
-    echo -e "${GREEN}4. 修改配置${RESET}"
-    echo -e "${GREEN}0. 退出${RESET}"
-    echo -e "${GREEN}=================================${RESET}"
-    read -p "请输入选项: " choice
-    case "$choice" in
-        1) install_proxy ;;
-        2) uninstall_proxy ;;
-        3) show_logs ;;
-        4) modify_proxy ;;
-        0) exit 0 ;;
-        *) echo "❌ 无效输入" ;;
-    esac
-}
-
-while true; do
+    read -rp "按回车返回菜单..."
     menu
-done
+}
+
+
+update_app() {
+    cd "$APP_DIR" || { echo "未检测到安装目录，请先安装"; sleep 1; menu; }
+    docker compose pull
+    docker compose up -d
+    echo -e "${GREEN}✅ MTProxy 已更新并重启完成${RESET}"
+    read -rp "按回车返回菜单..."
+    menu
+}
+
+uninstall_app() {
+    cd "$APP_DIR" || { echo "未检测到安装目录"; sleep 1; menu; }
+    docker compose down -v
+    rm -rf "$APP_DIR"
+    echo -e "${RED}✅ MTProxy 已卸载，数据已删除${RESET}"
+    read -rp "按回车返回菜单..."
+    menu
+}
+
+view_logs() {
+    docker logs -f mtproxy
+    read -rp "按回车返回菜单..."
+    menu
+}
+
+check_docker
+menu
