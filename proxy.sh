@@ -3,10 +3,12 @@
 # 代理协议一键菜单（o/O 快捷键，独立版）
 # ========================================
 
-RED="\033[31m"
 GREEN="\033[32m"
 YELLOW="\033[33m"
+RED="\033[31m"
+BLUE="\033[34m"
 RESET="\033[0m"
+BOLD="\033[1m"
 
 SCRIPT_PATH="/root/proxy.sh"
 SCRIPT_URL="https://raw.githubusercontent.com/Polarisiu/proxy/main/proxy.sh"
@@ -33,43 +35,41 @@ fi
 # 菜单函数
 # =============================
 show_menu() {
-    echo -e "${GREEN}========= 代理协议一键安装菜单 =========${RESET}"
-    echo -e "${GREEN}[01] 老王 Sing-box 四合一${RESET}"
-    echo -e "${GREEN}[02] 老王 Xray-2go 一键脚本${RESET}"
-    echo -e "${GREEN}[03] mack-a 八合一脚本${RESET}"
-    echo -e "${GREEN}[04] Sing-box-yg${RESET}"
-    echo -e "${GREEN}[05] Hysteria2${RESET}"
-    echo -e "${GREEN}[06] Tuic${RESET}"
-    echo -e "${GREEN}[07] Reality${RESET}"
-    echo -e "${GREEN}[08] Snell${RESET}"
-    echo -e "${GREEN}[09] MTProto${RESET}"
-    echo -e "${GREEN}[10] Anytls${RESET}"
-    echo -e "${GREEN}[11] 3XUI管理${RESET}"
-    echo -e "${GREEN}[12] MTProxy(Docker)${RESET}"
-    echo -e "${GREEN}[13] GOST管理${RESET}"
-    echo -e "${GREEN}[14] Realm管理${RESET}"
-    echo -e "${GREEN}[15] Alpine转发${RESET}"
-    echo -e "${GREEN}[16] FRP管理${RESET}"
-    echo -e "${GREEN}[17] SS+SNELL${RESET}"
-    echo -e "${GREEN}[18] Hysteria2(Alpine)${RESET}"
-    echo -e "${GREEN}[19] S-UI面板${RESET}"
-    echo -e "${GREEN}[20] H-UI面板${RESET}"
-    echo -e "${GREEN}[21] NodePass面板${RESET}"
-    echo -e "${GREEN}[22] 哆啦A梦转发面板${RESET}"
-    echo -e "${GREEN}[23] 极光面板${RESET}"
-    echo -e "${GREEN}[24] BBR管理${RESET}"
-    echo -e "${GREEN}[25] Socks5${RESET}"
-    echo -e "${GREEN}[26] wireguard${RESET}"
-    echo -e "${GREEN}----------------------------------------${RESET}"
+    echo -e "${BLUE}======= 代理协议安装菜单 ========${RESET}"
+    echo -e "${YELLOW}[01] 老王 Sing-box 四合一${RESET}"
+    echo -e "${YELLOW}[02] 老王 Xray-2go 一键脚本${RESET}"
+    echo -e "${YELLOW}[03] mack-a 八合一脚本${RESET}"
+    echo -e "${YELLOW}[04] Sing-box-yg${RESET}"
+    echo -e "${YELLOW}[05] Hysteria2${RESET}"
+    echo -e "${YELLOW}[06] Tuic${RESET}"
+    echo -e "${YELLOW}[07] Reality${RESET}"
+    echo -e "${YELLOW}[08] Snell${RESET}"
+    echo -e "${YELLOW}[09] MTProto${RESET}"
+    echo -e "${YELLOW}[10] Anytls${RESET}"
+    echo -e "${YELLOW}[11] 3XUI管理${RESET}"
+    echo -e "${YELLOW}[12] MTProxy(Docker)${RESET}"
+    echo -e "${YELLOW}[13] GOST管理${RESET}"
+    echo -e "${YELLOW}[14] Realm管理${RESET}"
+    echo -e "${YELLOW}[15] Alpine转发${RESET}"
+    echo -e "${YELLOW}[16] FRP管理${RESET}"
+    echo -e "${YELLOW}[17] SS+SNELL${RESET}"
+    echo -e "${YELLOW}[18] Hysteria2(Alpine)${RESET}"
+    echo -e "${YELLOW}[19] S-UI面板${RESET}"
+    echo -e "${YELLOW}[20] H-UI面板${RESET}"
+    echo -e "${YELLOW}[21] NodePass面板${RESET}"
+    echo -e "${YELLOW}[22] 哆啦A梦转发面板${RESET}"
+    echo -e "${YELLOW}[23] 极光面板${RESET}"
+    echo -e "${YELLOW}[24] BBR管理${RESET}"
+    echo -e "${YELLOW}[25] Socks5${RESET}"
+    echo -e "${YELLOW}[26] WireGuard${RESET}"
+    echo -e "${YELLOW}[27] Xboard${RESET}"
     echo -e "${GREEN}[88] 更新脚本${RESET}"
     echo -e "${GREEN}[99] 卸载脚本${RESET}"
-    echo -e "${GREEN}[0]  退出脚本${RESET}"
-    echo -e "${GREEN}----------------------------------------${RESET}"
-
-    read -p "请输入选项: " choice
+    echo -e "${GREEN}[00] 退出脚本${RESET}"
+    echo -ne "${RED}请输入选项: ${RESET}"
+    read choice
     install_protocol "$choice"
 }
-
 # =============================
 # 协议安装函数
 # =============================
@@ -101,6 +101,7 @@ install_protocol() {
         24) wget --no-check-certificate -O tcpx.sh https://raw.githubusercontent.com/ylx2016/Linux-NetSpeed/master/tcpx.sh && chmod +x tcpx.sh && ./tcpx.sh ;;
         25) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/socks5.sh) ;;
         26) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/wireguard.sh) ;;
+        27) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/Xboard.sh) ;;
         88|088)
             echo -e "${GREEN}🔄 更新脚本...${RESET}"
             curl -fsSL -o "$SCRIPT_PATH" "$SCRIPT_URL"
@@ -117,7 +118,7 @@ install_protocol() {
             echo -e "${GREEN}✅ 脚本和快捷键已卸载${RESET}"
             exit 0
             ;;
-        0) exit 0 ;;
+        00) exit 0 ;;
         *) echo -e "${RED}无效选择，请重试${RESET}" ;;
     esac
 }
