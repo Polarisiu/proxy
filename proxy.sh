@@ -115,7 +115,7 @@ install_protocol() {
             echo -e "${YELLOW}正在卸载脚本...${RESET}"
             rm -f "$SCRIPT_PATH"
             rm -f "$BIN_LINK_DIR/o" "$BIN_LINK_DIR/O"
-            echo -e "${GREEN}✅ 脚本和快捷键已卸载${RESET}"
+            echo -e "${GREEN}✅ 脚本已卸载${RESET}"
             exit 0
             ;;
         00) exit 0 ;;
