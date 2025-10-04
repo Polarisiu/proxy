@@ -22,7 +22,7 @@ random_str() {
 menu_hui() {
     while true; do
         clear
-        echo -e "${green} H-UI 面板管理 ${reset}"
+        echo -e "${green}=== H-UI 面板管理===${reset}"
         echo -e "${green}1. 安装 H-UI 面板${reset}"
         echo -e "${green}2. 卸载 H-UI 面板${reset}"
         echo -e "${green}0. 退出${reset}"
