@@ -8,16 +8,14 @@ plain="\033[0m"
 
 show_menu() {
     clear
-    echo -e "${green}=========== 3x-ui 管理面板 (Alpine) ===========${plain}"
-    echo -e " ${green}1.安装 3x-ui${plain}"
-    echo -e " ${green}2.卸载 3x-ui${plain}"
-    echo -e " ${green}3.启动 3x-ui${plain}"
-    echo -e " ${green}4.停止 3x-ui${plain}"
-    echo -e " ${green}5.重启 3x-ui${plain}"
-    echo -e " ${green}6.更新 geoip${plain}"
+    echo -e "${green}===3x-ui 管理面板 (Alpine) ===${plain}"
+    echo -e " ${green}1.安装${plain}"
+    echo -e " ${green}2.卸载${plain}"
+    echo -e " ${green}3.启动${plain}"
+    echo -e " ${green}4.停止${plain}"
+    echo -e " ${green}5.重启${plain}"
+    echo -e " ${green}6.更新geoip${plain}"
     echo -e " ${green}0.退出${plain}"
-    echo -e "${green}===============================================${plain}"
-    echo
 }
 
 install_3xui() {
@@ -65,6 +63,5 @@ while true; do
         0) exit 0 ;;
         *) echo -e "${red}无效选项，请重新输入${plain}" ;;
     esac
-    echo
     read -rp "按回车键返回菜单..."
 done
