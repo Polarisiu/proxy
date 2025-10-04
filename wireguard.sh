@@ -22,10 +22,10 @@ NETWORK=${DEFAULT_NETWORK}
 show_menu() {
     clear
     echo -e "${GREEN}=== WireGuard VPN 管理菜单 ===${RESET}"
-    echo -e "${GREEN}1) 安装启动 WireGuard 服务${RESET}"
-    echo -e "${GREEN}2) 更新 WireGuard 服务${RESET}"
-    echo -e "${GREEN}3) 查看所有客户端配置${RESET}"
-    echo -e "${GREEN}4) 卸载 WireGuard 服务${RESET}"
+    echo -e "${GREEN}1) 安装启动${RESET}"
+    echo -e "${GREEN}2) 更新${RESET}"
+    echo -e "${GREEN}3) 查看客户端配置${RESET}"
+    echo -e "${GREEN}4) 卸载${RESET}"
     echo -e "${GREEN}0) 退出${RESET}"
     read -e -p "请输入选项: " option
     case $option in
