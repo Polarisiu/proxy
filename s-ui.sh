@@ -17,9 +17,6 @@ pause_and_return() {
 menu_sui() {
     while true; do
         clear
-        echo -e "${green}━━━━━━━━━━━━━━━━━━━━━━━━━━${reset}"
-        echo -e "${green}       Sui 面板管理        ${reset}"
-        echo -e "${green}━━━━━━━━━━━━━━━━━━━━━━━━━━${reset}"
         echo -e "${green}1. 安装 Sui 面板${reset}"
         echo -e "${green}2. 卸载 Sui 面板${reset}"
         echo -e "${green}0. 退出${reset}"
@@ -30,12 +27,11 @@ menu_sui() {
                 bash <(curl -Ls https://raw.githubusercontent.com/Misaka-blog/s-ui/master/install.sh)
 
                 echo -e "\n${green}✅ 安装完成${reset}"
-                echo -e "${yellow}======== Sui 默认面板信息 ========${reset}"
+                echo -e "${yellow}===== Sui 默认面板信息 ======${reset}"
                 echo -e "${green}面板端口：2095${reset}"
                 echo -e "${green}面板路径：/app/${reset}"
                 echo -e "${green}订阅端口：2096${reset}"
                 echo -e "${green}订阅路径：/sub/${reset}"
-                echo -e "${yellow}================================${reset}"
                 pause_and_return
                 ;;
             2)
@@ -47,7 +43,6 @@ menu_sui() {
                 rm -rf /usr/local/s-ui
                 clear
                 echo -e "${green}✅ Sui 面板已卸载${reset}"
-                echo -e "${blue}━━━━━━━━━━━━━━━━━━━━━━━━━━${reset}"
                 pause_and_return
                 ;;
             0)
