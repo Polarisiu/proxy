@@ -93,14 +93,11 @@ show_client_config() {
 # ================== 主菜单 ==================
 while true; do
     clear
-    echo "--------------"
     echo -e "${green}1. 安装 Hysteria2${re}"
     echo -e "${green}2. 查看 Hysteria2状态${re}"
     echo -e "${green}3. 更换 Hysteria2端口${re}"
     echo -e "${green}4. 卸载 Hysteria2${re}"
     echo -e "${green}0. 退出${re}"
-    echo "--------------"
-
     read -p $'\033[1;32m请输入你的选择: \033[0m' sub_choice
     case $sub_choice in
         1)
