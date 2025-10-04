@@ -62,14 +62,10 @@ pause_return() {
 # 显示菜单
 show_menu() {
     clear
-    echo -e "${GREEN}-------------------------------------${RESET}"
-    echo -e "${GREEN}   anytls安装脚本 ${RESET}"
-    echo -e "${GREEN}-------------------------------------${RESET}"
     echo -e "${GREEN}1. 安装 anytls${RESET}"
     echo -e "${GREEN}2. 卸载 anytls${RESET}"
     echo -e "${GREEN}3. 修改端口${RESET}"
     echo -e "${GREEN}0. 退出${RESET}"
-    echo -e "${GREEN}-------------------------------------${RESET}"
     read -p "请输入选项: " choice
     case $choice in
         1) install_anytls ;;
