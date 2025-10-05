@@ -18,7 +18,7 @@ BIN_LINK_DIR="/usr/local/bin"
 # 首次运行自动安装
 # =============================
 if [ ! -f "$SCRIPT_PATH" ]; then
-    echo -e "${YELLOW}首次运行，正在保存脚本到 $SCRIPT_PATH ...${RESET}"
+    echo -e "${YELLOW}首次运行，正在安装脚本...${RESET}"
     curl -fsSL -o "$SCRIPT_PATH" "$SCRIPT_URL"
     if [ $? -ne 0 ]; then
         echo -e "${RED}❌ 下载失败，请检查网络或 URL${RESET}"
@@ -35,6 +35,7 @@ fi
 # 菜单函数
 # =============================
 show_menu() {
+    clear
     echo -e "${BLUE}======= 代理协议安装菜单 ========${RESET}"
     echo -e "${YELLOW}[01] 老王 Sing-box 四合一${RESET}"
     echo -e "${YELLOW}[02] 老王 Xray-2go 一键脚本${RESET}"
