@@ -27,7 +27,7 @@ show_menu() {
     echo -e "${GREEN}3) 查看客户端配置${RESET}"
     echo -e "${GREEN}4) 卸载${RESET}"
     echo -e "${GREEN}0) 退出${RESET}"
-    read -p "$(echo -e ${GREEN}请选择:${RESET}) " option
+    read -e -p "$(echo -e ${GREEN}请输入选项: ${RESET})" option
     case $option in
         1) modify_and_install_start_wireguard ;;
         2) update_wireguard ;;
