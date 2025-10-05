@@ -30,7 +30,6 @@ while true; do
             bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/Client.sh)
             ;;
         0|00)
-            echo -e "${GREEN}已退出。${NC}"
             exit 0
             ;;
         *)
