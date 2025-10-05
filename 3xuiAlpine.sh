@@ -52,7 +52,7 @@ update_geoip() {
 
 while true; do
     show_menu
-    read -rp "请输入选项: " choice
+    read -p "$(echo -e ${green}请选择:${plain}) " choice
     case "$choice" in
         1) install_3xui ;;
         2) uninstall_3xui ;;
@@ -61,7 +61,8 @@ while true; do
         5) restart_3xui ;;
         6) update_geoip ;;
         0) exit 0 ;;
-        *) echo -e "${red}无效选项，请重新输入${plain}" ;;
+        *) echo -e "${red}无效选择${plain}" ;;
     esac
-    read -rp "按回车键返回菜单..."
+    read -p "$(echo -e ${green}按回车返回菜单...${plain})"
+
 done
