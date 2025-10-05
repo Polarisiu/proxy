@@ -1,6 +1,7 @@
 #!/bin/bash
 
 GREEN="\033[32m"
+RED="\033[31m"
 RESET="\033[0m"
 gl_huang="\033[33m"
 gl_bai="\033[97m"
@@ -27,14 +28,14 @@ show_menu() {
     echo -e "${GREEN}3) 查看客户端配置${RESET}"
     echo -e "${GREEN}4) 卸载${RESET}"
     echo -e "${GREEN}0) 退出${RESET}"
-    read -e -p "$(echo -e ${GREEN}请输入选项: ${RESET})" option
+    read -e -p "$(echo -e ${GREEN}请选择: ${RESET})" option
     case $option in
         1) modify_and_install_start_wireguard ;;
         2) update_wireguard ;;
         3) view_client_configs ;;
         4) stop_wireguard ;;
         0) exit 0 ;;
-        *) echo -e "${gl_huang}无效选项，请重新选择！${gl_bai}" && sleep 2 && show_menu ;;
+        *) echo -e "${RED}无效选择${RESET}" && sleep 2 && show_menu ;;
     esac
 }
 
