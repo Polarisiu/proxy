@@ -19,7 +19,7 @@ while true; do
     echo -e "${GREEN}1.Master 面板部署${NC}"
     echo -e "${GREEN}2.Server 服务端部署${NC}"
     echo -e "${GREEN}3.Client 客户端部署${NC}"
-    echo -e "${GREEN}4.退出${NC}"
+    echo -e "${GREEN}0.退出${NC}"
     read -p "$(echo -e ${GREEN}请选择:${RESET}) " choice
 
     case $choice in
