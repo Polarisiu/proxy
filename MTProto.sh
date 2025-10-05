@@ -38,7 +38,7 @@ while true; do
     echo -e "${green}1. 安装 MTProto${re}"
     echo -e "${green}2. 卸载 MTProto${re}"
     echo -e "${green}0. 退出${re}"
-    read -p $'\033[1;91m请输入你的选择: \033[0m' choice
+    read -p "$(echo -e ${green}请选择:${re}) " choice
 
     case $choice in
         1)
