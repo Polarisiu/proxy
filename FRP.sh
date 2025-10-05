@@ -13,7 +13,7 @@ show_menu() {
     echo -e "${GREEN}2. 安装 FRP 工具 (快速部署 FRP 服务端/客户端)${NC}"
     echo -e "${GREEN}3. 安装 frpc-manager (客户端管理)${NC}"
     echo -e "${GREEN}0. 退出${NC}"
-    echo -n -e "${GREEN}请选择你要安装的工具: ${NC}"
+    echo -n -e "${GREEN}请选择: ${NC}"
 }
 
 # 安装函数
