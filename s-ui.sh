@@ -16,6 +16,7 @@ pause_and_return() {
 menu_sui() {
     while true; do
         clear
+        echo -e "${green}=== S-UI 面板管理===${reset}"
         echo -e "${green}1. 安装 Sui 面板${reset}"
         echo -e "${green}2. 卸载 Sui 面板${reset}"
         echo -e "${green}0. 退出${reset}"
