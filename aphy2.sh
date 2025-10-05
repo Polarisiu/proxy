@@ -221,7 +221,7 @@ while true; do
     echo -e "${GREEN}7) 修改密码${RESET}"
     echo -e "${GREEN}8) 卸载 Hysteria${RESET}"
     echo -e "${GREEN}0) 退出${RESET}"
-    read -p "请输入选项: " choice
+    read -p "$(echo -e ${GREEN}请选择:${RESET}) " choice
     case "$choice" in
         1) install_hysteria ;;
         2) show_status ;;
@@ -232,6 +232,6 @@ while true; do
         7) change_password ;;
         8) uninstall_hysteria ;;
         0) exit 0 ;;
-        *) echo -e "${RED}无效选项${RESET}" ;;
+        *) echo -e "${RED}无效选择${RESET}" ;;
     esac
 done
