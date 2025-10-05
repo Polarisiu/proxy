@@ -20,7 +20,7 @@ while true; do
     echo -e "${GREEN}02) Server 服务端部署${NC}"
     echo -e "${GREEN}03) Client 客户端部署${NC}"
     echo -e "${GREEN} 0) 退出${NC}"
-    read -rp "请输入编号: " choice
+    read -p "$(echo -e ${GREEN}请选择:${RESET}) " choice
 
     case $choice in
         1|01)
