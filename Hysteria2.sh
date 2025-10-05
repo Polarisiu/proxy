@@ -156,7 +156,6 @@ while true; do
             read -p "按回车返回菜单..."
             ;;
         0)
-            echo -e "${green}已退出脚本${re}"
             exit 0
             ;;
         *)
