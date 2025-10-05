@@ -211,6 +211,7 @@ uninstall_hysteria() {
 
 # ===================== 菜单 =====================
 while true; do
+    clear
     echo -e "${GREEN}==== Hysteria v2 管理脚本 =====${RESET}"
     echo -e "${GREEN}1) 安装 Hysteria${RESET}"
     echo -e "${GREEN}2) 查看状态${RESET}"
