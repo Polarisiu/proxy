@@ -37,5 +37,5 @@ while true; do
             ;;
     esac
 
-    read -rp "按回车返回菜单..." temp
+    read -p "$(echo -e ${GREEN}按回车返回菜单...${RESET})" temp
 done
