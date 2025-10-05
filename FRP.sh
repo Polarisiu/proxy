@@ -47,7 +47,6 @@ while true; do
         2) install_frp_tool ;;
         3) install_frpc_manager ;;
         0)
-            echo -e "${GREEN}已退出.${NC}"
             exit 0
             ;;
         *)
