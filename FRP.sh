@@ -3,6 +3,7 @@
 # 颜色定义
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
+RED="\033[31m"
 NC='\033[0m' # 不带颜色
 
 # 菜单函数
@@ -50,7 +51,7 @@ while true; do
             exit 0
             ;;
         *)
-            echo -e "${GREEN}输入无效，请重新选择 [0-3]${NC}"
+            echo -e "${RED}输入无效，请重新选择${NC}"
             ;;
     esac
 done
