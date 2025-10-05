@@ -449,7 +449,7 @@ main_menu() {
       2) modify_flow ;;
       3) uninstall_flow ;;
       4) status_flow ;;
-      0) echo -e "${GREEN}退出。${RESET}"; exit 0 ;;
+      0) exit 0 ;;
       *) echo -e "${RED}无效选项。${RESET}" ;;
     esac
   done
