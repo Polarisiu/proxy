@@ -25,17 +25,14 @@ while true; do
     case $choice in
         1|01)
             bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/Master.sh)
-            echo -e "${GREEN}Master 部署完成，按回车返回菜单${NC}"
             read -r
             ;;
         2|02)
             bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/server.sh)
-            echo -e "${GREEN}Server 部署完成，按回车返回菜单${NC}"
             read -r
             ;;
         3|03)
             bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/Client.sh)
-            echo -e "${GREEN}Client 部署完成，按回车返回菜单${NC}"
             read -r
             ;;
         0)
