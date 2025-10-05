@@ -8,6 +8,7 @@ GREEN="\033[32m"
 YELLOW="\033[33m"
 CYAN="\033[36m"
 RESET="\033[0m"
+RED="\033[31m"
 
 SERVICE_NAME="anytls"
 BINARY_NAME="anytls-server"
@@ -66,13 +67,13 @@ show_menu() {
     echo -e "${GREEN}2. 卸载 anytls${RESET}"
     echo -e "${GREEN}3. 修改端口${RESET}"
     echo -e "${GREEN}0. 退出${RESET}"
-    read -p "请输入选项: " choice
+    read -p "$(echo -e ${GREEN}请选择:${RESET}) " choice
     case $choice in
         1) install_anytls ;;
         2) uninstall_anytls ;;
         3) modify_port ;;
         0) exit 0 ;;
-        *) echo -e "${YELLOW}无效选项！${RESET}" && sleep 1 && show_menu ;;
+        *) echo -e "${RED}无效选择${RESET}" && sleep 1 && show_menu ;;
     esac
 }
 
