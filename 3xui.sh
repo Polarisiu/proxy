@@ -41,7 +41,6 @@ menu() {
                 pause
                 ;;
             0)
-                echo -e "${GREEN}退出脚本${RESET}"
                 exit 0
                 ;;
             *)
