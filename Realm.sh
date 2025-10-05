@@ -10,7 +10,7 @@ menu() {
     echo -e "${GREEN}1) 国外机 EZRealm 安装${RESET}"
     echo -e "${GREEN}2) 国内机 EZRealm 安装${RESET}"
     echo -e "${GREEN}0) 退出${RESET}"
-    read -p $'\033[32m请选择操作 (0-2): \033[0m' choice
+    read -p $'\033[32m请选择操作: \033[0m' choice
     case $choice in
         1)
             echo -e "${GREEN}正在安装国外机 EZRealm...${RESET}"
