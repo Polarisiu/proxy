@@ -213,14 +213,14 @@ uninstall_hysteria() {
 while true; do
     clear
     echo -e "${GREEN}==== Hysteria v2 管理脚本 =====${RESET}"
-    echo -e "${GREEN}1) 安装 Hysteria${RESET}"
+    echo -e "${GREEN}1) 安装${RESET}"
     echo -e "${GREEN}2) 查看状态${RESET}"
     echo -e "${GREEN}3) 启动服务${RESET}"
     echo -e "${GREEN}4) 停止服务${RESET}"
     echo -e "${GREEN}5) 重启服务${RESET}"
     echo -e "${GREEN}6) 修改端口${RESET}"
     echo -e "${GREEN}7) 修改密码${RESET}"
-    echo -e "${GREEN}8) 卸载 Hysteria${RESET}"
+    echo -e "${GREEN}8) 卸载${RESET}"
     echo -e "${GREEN}0) 退出${RESET}"
     read -p "$(echo -e ${GREEN}请选择:${RESET}) " choice
     case "$choice" in
