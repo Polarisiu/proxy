@@ -4,6 +4,7 @@
 green="\033[32m"
 yellow="\033[33m"
 reset="\033[0m"
+RED="\033[31m"
 
 TUIC_DIR="/root/tuic"
 CONFIG="$TUIC_DIR/config.json"
@@ -160,18 +161,18 @@ menu() {
     echo -e "${green}3. 查看节点信息${reset}"
     echo -e "${green}4. 卸载 Tuic${reset}"
     echo -e "${green}0. 退出${reset}"
-    read -p "请选择: " choice
+    read -p "$(echo -e ${GREEN}请选择:${RESET}) " choice
     case $choice in
         1) install_tuic ;;
         2) change_port ;;
         3) show_info ;;
         4) uninstall_tuic ;;
         0) exit 0 ;;
-        *) echo "无效选择";;
+        *) echo -e "${RED}无效选择${RESET}";;
     esac
 }
 
 while true; do
     menu
-    read -p "按回车返回菜单..." temp
+    read -p "$(echo -e ${GREEN}按回车返回菜单...${RESET})" temp
 done
