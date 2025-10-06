@@ -9,6 +9,7 @@ RED="\033[31m"
 BLUE="\033[34m"
 RESET="\033[0m"
 BOLD="\033[1m"
+ORANGE='\033[38;5;208m'
 
 SCRIPT_PATH="/root/proxy.sh"
 SCRIPT_URL="https://raw.githubusercontent.com/Polarisiu/proxy/main/proxy.sh"
@@ -35,7 +36,7 @@ fi
 # =============================
 show_menu() {
     clear
-    echo -e "${BLUE}======= 代理协议安装菜单 ========${RESET}"
+    echo -e "${ORANGE}======= 代理协议安装菜单 ========${RESET}"
     echo -e "${YELLOW}[01] 老王 Sing-box 四合一${RESET}"
     echo -e "${YELLOW}[02] 老王 Xray-2go 一键脚本${RESET}"
     echo -e "${YELLOW}[03] mack-a 八合一脚本${RESET}"
@@ -65,7 +66,7 @@ show_menu() {
     echo -e "${YELLOW}[27] Xboard${RESET}"
     echo -e "${GREEN}[88] 更新脚本${RESET}"
     echo -e "${GREEN}[99] 卸载脚本${RESET}"
-    echo -e "${GREEN}[00] 退出脚本${RESET}"
+    echo -e "${YELLOW}[00] 退出脚本${RESET}"
     echo -ne "${RED}请输入选项: ${RESET}"
     read choice
     install_protocol "$choice"
