@@ -64,6 +64,8 @@ show_menu() {
     echo -e "${YELLOW}[25] Socks5${RESET}"
     echo -e "${YELLOW}[26] WireGuard${RESET}"
     echo -e "${YELLOW}[27] Xboard${RESET}"
+    echo -e "${YELLOW}[28] Zelay转发面板${RESET}"
+    echo -e "${YELLOW}[29] 多协议代理部署脚本${RESET}"
     echo -e "${GREEN}[88] 更新脚本${RESET}"
     echo -e "${GREEN}[99] 卸载脚本${RESET}"
     echo -e "${YELLOW}[00] 退出脚本${RESET}"
@@ -103,6 +105,8 @@ install_protocol() {
         25) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/socks5.sh) ;;
         26) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/wireguard.sh) ;;
         27) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/Xboard.sh) ;;
+        28) bash <(curl -fsSL https://raw.githubusercontent.com/enp6/Zelay/main/zelay_manager.sh) web-port=3000 agent-port=3001 ;;
+        29) wget -O vless-server.sh https://raw.githubusercontent.com/Chil30/vless-all-in-one/main/vless-server.sh && bash vless-server.sh ;;
         88|088)
             echo -e "${GREEN}🔄 更新脚本...${RESET}"
             curl -fsSL -o "$SCRIPT_PATH" "$SCRIPT_URL"
