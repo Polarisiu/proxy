@@ -51,20 +51,21 @@ show_menu() {
     echo -e "${YELLOW}[12] MTProxy(Docker)${RESET}"
     echo -e "${YELLOW}[13] GOST管理${RESET}"
     echo -e "${YELLOW}[14] Realm管理${RESET}"
-    echo -e "${YELLOW}[15] FRP管理${RESET}"
-    echo -e "${YELLOW}[16] SS+SNELL${RESET}"
-    echo -e "${YELLOW}[17] Hysteria2(Alpine)${RESET}"
-    echo -e "${YELLOW}[18] S-UI面板${RESET}"
-    echo -e "${YELLOW}[19] H-UI面板${RESET}"
-    echo -e "${YELLOW}[20] NodePass面板${RESET}"
-    echo -e "${YELLOW}[21] 哆啦A梦转发面板${RESET}"
-    echo -e "${YELLOW}[22] 极光面板${RESET}"
-    echo -e "${YELLOW}[23] BBR管理${RESET}"
-    echo -e "${YELLOW}[24] Socks5${RESET}"
-    echo -e "${YELLOW}[25] WireGuard${RESET}"
-    echo -e "${YELLOW}[26] Xboard${RESET}"
-    echo -e "${YELLOW}[27] Zelay转发面板${RESET}"
-    echo -e "${YELLOW}[28] 多协议代理部署脚本${RESET}"
+    echo -e "${YELLOW}[15] Shadowsocks${RESET}"
+    echo -e "${YELLOW}[16] FRP管理${RESET}"
+    echo -e "${YELLOW}[17] SS+SNELL${RESET}"
+    echo -e "${YELLOW}[18] Hysteria2(Alpine)${RESET}"
+    echo -e "${YELLOW}[19] S-UI面板${RESET}"
+    echo -e "${YELLOW}[20] H-UI面板${RESET}"
+    echo -e "${YELLOW}[21] NodePass面板${RESET}"
+    echo -e "${YELLOW}[22] 哆啦A梦转发面板${RESET}"
+    echo -e "${YELLOW}[23] 极光面板${RESET}"
+    echo -e "${YELLOW}[24] BBR管理${RESET}"
+    echo -e "${YELLOW}[25] Socks5${RESET}"
+    echo -e "${YELLOW}[26] WireGuard${RESET}"
+    echo -e "${YELLOW}[27] Xboard${RESET}"
+    echo -e "${YELLOW}[28] Zelay转发面板${RESET}"
+    echo -e "${YELLOW}[29] 多协议代理部署脚本${RESET}"
     echo -e "${GREEN}[88] 更新脚本${RESET}"
     echo -e "${GREEN}[99] 卸载脚本${RESET}"
     echo -e "${YELLOW}[00] 退出脚本${RESET}"
@@ -91,20 +92,21 @@ install_protocol() {
         12) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/dkmop.sh) ;;
         13) bash <(curl -sL https://raw.githubusercontent.com/Polarisiu/proxy/main/gost.sh) ;;
         14) bash <(curl -sL https://raw.githubusercontent.com/Polarisiu/proxy/main/Realm.sh) ;;
-        15) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/FRP.sh) ;;
-        16) bash <(curl -L -s menu.jinqians.com) ;;
-        17) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu//proxy/main/aphy2.sh) ;;
-        18) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/s-ui.sh) ;;
-        19) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/H-UI.sh) ;;
-        20) bash <(curl -sL https://raw.githubusercontent.com/Polarisiu/proxy/main/NodePass.sh) ;;
-        21) bash <(curl -sL https://raw.githubusercontent.com/Polarisiu/proxy/main/dlam.sh) ;;
-        22) bash <(curl -fsSL https://raw.githubusercontent.com/Aurora-Admin-Panel/deploy/main/install.sh) ;;
-        23) wget --no-check-certificate -O tcpx.sh https://raw.githubusercontent.com/ylx2016/Linux-NetSpeed/master/tcpx.sh && chmod +x tcpx.sh && ./tcpx.sh ;;
-        24) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/socks5.sh) ;;
-        25) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/wireguard.sh) ;;
-        26) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/Xboard.sh) ;;
-        27) bash <(curl -fsSL https://raw.githubusercontent.com/enp6/Zelay/main/zelay_manager.sh) web-port=3000 agent-port=3001 ;;
-        28) wget -O vless-server.sh https://raw.githubusercontent.com/Chil30/vless-all-in-one/main/vless-server.sh && bash vless-server.sh ;;
+        15) wget -O ss-rust.sh --no-check-certificate https://raw.githubusercontent.com/xOS/Shadowsocks-Rust/master/ss-rust.sh && chmod +x ss-rust.sh && ./ss-rust.sh ;;
+        16) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/FRP.sh) ;;
+        17) bash <(curl -L -s menu.jinqians.com) ;;
+        18) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu//proxy/main/aphy2.sh) ;;
+        19) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/s-ui.sh) ;;
+        20) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/H-UI.sh) ;;
+        21) bash <(curl -sL https://raw.githubusercontent.com/Polarisiu/proxy/main/NodePass.sh) ;;
+        22) bash <(curl -sL https://raw.githubusercontent.com/Polarisiu/proxy/main/dlam.sh) ;;
+        23) bash <(curl -fsSL https://raw.githubusercontent.com/Aurora-Admin-Panel/deploy/main/install.sh) ;;
+        24) wget --no-check-certificate -O tcpx.sh https://raw.githubusercontent.com/ylx2016/Linux-NetSpeed/master/tcpx.sh && chmod +x tcpx.sh && ./tcpx.sh ;;
+        25) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/socks5.sh) ;;
+        26) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/wireguard.sh) ;;
+        27) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/Xboard.sh) ;;
+        28) bash <(curl -fsSL https://raw.githubusercontent.com/enp6/Zelay/main/zelay_manager.sh) web-port=3000 agent-port=3001 ;;
+        29) wget -O vless-server.sh https://raw.githubusercontent.com/Chil30/vless-all-in-one/main/vless-server.sh && bash vless-server.sh ;;
         88|088)
             echo -e "${GREEN}🔄 更新脚本...${RESET}"
             curl -fsSL -o "$SCRIPT_PATH" "$SCRIPT_URL"
