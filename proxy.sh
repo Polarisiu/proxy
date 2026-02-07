@@ -51,7 +51,6 @@ show_menu() {
     echo -e "${YELLOW}[12] MTProxy(Docker)${RESET}"
     echo -e "${YELLOW}[13] GOST管理${RESET}"
     echo -e "${YELLOW}[14] Realm管理${RESET}"
-    echo -e "${YELLOW}[15] Alpine转发${RESET}"
     echo -e "${YELLOW}[16] FRP管理${RESET}"
     echo -e "${YELLOW}[17] SS+SNELL${RESET}"
     echo -e "${YELLOW}[18] Hysteria2(Alpine)${RESET}"
@@ -92,7 +91,6 @@ install_protocol() {
         12) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/dkmop.sh) ;;
         13) bash <(curl -sL https://raw.githubusercontent.com/Polarisiu/proxy/main/gost.sh) ;;
         14) bash <(curl -sL https://raw.githubusercontent.com/Polarisiu/proxy/main/Realm.sh) ;;
-        15) curl -sS -O https://raw.githubusercontent.com/zyxinab/iptables-manager/main/iptables-manager.sh && chmod +x iptables-manager.sh && ./iptables-manager.sh ;;
         16) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu/proxy/main/FRP.sh) ;;
         17) bash <(curl -L -s menu.jinqians.com) ;;
         18) bash <(curl -fsSL https://raw.githubusercontent.com/Polarisiu//proxy/main/aphy2.sh) ;;
